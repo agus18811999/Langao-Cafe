@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Langao - Premium Coffee Experience</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'langao-dark': '#1a0b08',
+                        'langao-brown': '#3e2723',
+                        'langao-gold': '#d4af37',
+                        'langao-cream': '#f3e5ab',
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a0b08; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b59026; }
+
+        /* Hide scrollbar for promo banner but allow scroll */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Smooth Scroll */
+        html { scroll-behavior: smooth; }
+        
+        /* Glassmorphism Classes */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-heavy {
+            background: rgba(26, 11, 8, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(212, 175, 55, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-langao-dark via-[#2c1510] to-[#0f0504] text-white min-h-screen font-sans antialiased selection:bg-langao-gold selection:text-langao-dark overflow-x-hidden"
+      x-data="langaoApp()">
+
+    <nav class="fixed w-full z-50 transition-all duration-300 glass border-b-0" :class="{'bg-langao-dark/90 shadow-lg': isScrolled, 'bg-transparent': !isScrolled}" @scroll.window="isScrolled = (window.pageYOffset > 50)">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-serif font-bold text-langao-gold tracking-widest uppercase flex items-center gap-2">
+                <i class="fa-solid fa-mug-hot"></i> Langao
+            </a>
+
+            <div class="hidden md:flex space-x-8 items-center text-sm tracking-wide text-gray-300">
+                <a href="#home" class="hover:text-langao-gold transition duration-300">Home</a>
+                <a href="#about" class="hover:text-langao-gold transition duration-300">About</a>
+                <a href="#menu" class="hover:text-langao-gold transition duration-300">Menu</a>
+                <a href="#outlets" class="hover:text-langao-gold transition duration-300">Outlets</a>
+                <button @click="cartOpen = true" class="relative hover:text-langao-gold transition">
+                    <i class="fa-solid fa-shopping-bag text-xl"></i>
+                    <span x-show="cartTotalItems > 0" x-transition class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="cartTotalItems"></span>
+                </button>
+            </div>
+            
+            <button class="md:hidden text-langao-gold text-2xl" @click="mobileMenuOpen = !mobileMenuOpen">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        
+        <div x-show="mobileMenuOpen" x-transition class="md:hidden glass border-t border-white/10 p-4 absolute w-full">
+            <a href="#home" class="block py-2 hover:text-langao-gold">Home</a>
+            <a href="#menu" class="block py-2 hover:text-langao-gold">Menu</a>
+            <button @click="cartOpen = true; mobileMenuOpen = false" class="block py-2 w-full text-left text-langao-gold font-bold">
+                Lihat Keranjang (<span x-text="cartTotalItems"></span>)
+            </button>
+        </div>
+    </nav>
+
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Cafe Background" class="w-full h-full object-cover opacity-40">
+            <div class="absolute inset-0 bg-gradient-to-t from-langao-dark via-transparent to-langao-dark/60"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <span class="block text-langao-gold tracking-[0.3em] text-sm uppercase mb-4 animate-pulse">Est. 2024 • Premium Taste</span>
+            <h1 class="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight">
+                Rasakan Seni <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-langao-gold to-amber-200">Kopi Sejati</span>
+            </h1>
+            <p class="text-gray-300 max-w-2xl mx-auto mb-10 text-lg font-light">
+                Selamat datang di Langao. Perpaduan biji kopi pilihan, suasana elegan, dan cita rasa yang tak terlupakan. 
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="#menu" class="px-8 py-4 bg-langao-gold text-langao-dark font-bold uppercase tracking-wider rounded-sm hover:bg-white hover:text-langao-dark transition duration-300 shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                    Pesan Sekarang
+                </a>
+                <a href="#about" class="px-8 py-4 border border-langao-gold text-langao-gold font-bold uppercase tracking-wider rounded-sm hover:bg-langao-gold/10 transition duration-300">
+                    Tentang Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
+  
+
+    <section id="about" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 relative">
+                    <div class="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-langao-gold"></div>
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="About Langao" class="w-full rounded-lg shadow-2xl relative z-10 opacity-90 hover:opacity-100 transition duration-500">
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 border-b-2 border-r-2 border-langao-gold z-0"></div>
+                </div>
+                <div class="md:w-1/2 text-left">
+                    <h4 class="text-langao-gold tracking-widest uppercase mb-2 text-sm">Cerita Kami</h4>
+                    <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Lebih Dari Sekadar <br>Secangkir Kopi</h2>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Langao lahir dari keinginan sederhana: menciptakan ruang di mana waktu berjalan sedikit lebih lambat. Kami memanggang biji kopi Arabika premium setiap pagi, memastikan setiap tegukan membawa kehangatan dan kesempurnaan. 
+                    </p>
+                    <p class="text-gray-400 mb-8 leading-relaxed">
+                        Desain interior kami yang elegan dirancang untuk memberikan ketenangan, baik Anda datang untuk bekerja, bercengkrama, atau sekadar menikmati waktu sendiri.
+                    </p>
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <span class="block text-3xl font-serif text-langao-gold">15+</span>
+                            <span class="text-xs text-gray-500 uppercase">Outlet</span>
+                        </div>
+                        <div class="h-8 w-[1px] bg-white/20"></div>
+                        <div>
+                            <span class="block text-3xl font-serif text-langao-gold">100%</span>
+                            <span class="text-xs text-gray-500 uppercase">Premium Beans</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+  <section id="flash-sale" class="py-20 relative border-y border-white/5 bg-[#080403] overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-red-900/20 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-8 border-b border-white/5 pb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                        </div>
+                        <h4 class="text-red-500 tracking-[0.4em] uppercase text-[10px] font-bold">Limited Time Offer</h4>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-serif font-bold text-white leading-tight">Flash Sale <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-langao-gold to-yellow-200">Exclusives</span></h2>
+                </div>
+
+                <div class="flex gap-4 text-center" x-data="timer()" x-init="start()">
+                    <template x-for="(val, label) in time" :key="label">
+                        <div class="group relative bg-white/5 border border-white/10 rounded-lg px-4 py-3 min-w-[75px] backdrop-blur-md overflow-hidden hover:border-langao-gold/50 transition-colors duration-300">
+                            <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="text-3xl font-serif font-bold text-white" x-text="val"></div>
+                            <div class="text-[9px] text-langao-gold uppercase tracking-[0.2em] mt-1" x-text="label"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="relative group/slider">
+                <button @click="document.getElementById('flashContainer').scrollBy({left: -320, behavior: 'smooth'})" class="absolute left-0 top-1/2 -translate-y-1/2 -ml-5 z-30 w-14 h-14 rounded-full bg-black/50 border border-white/10 text-white flex items-center justify-center backdrop-blur-md shadow-2xl hover:bg-langao-gold hover:text-black hover:scale-110 transition-all duration-300 opacity-0 group-hover/slider:opacity-100 translate-x-4 group-hover/slider:translate-x-0">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <button @click="document.getElementById('flashContainer').scrollBy({left: 320, behavior: 'smooth'})" class="absolute right-0 top-1/2 -translate-y-1/2 -mr-5 z-30 w-14 h-14 rounded-full bg-black/50 border border-white/10 text-white flex items-center justify-center backdrop-blur-md shadow-2xl hover:bg-langao-gold hover:text-black hover:scale-110 transition-all duration-300 opacity-0 group-hover/slider:opacity-100 -translate-x-4 group-hover/slider:translate-x-0">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div id="flashContainer" class="flex overflow-x-auto gap-6 pb-12 hide-scroll snap-x snap-mandatory px-2">
+                    <template x-for="item in flashSaleProducts" :key="item.id">
+                        
+                        <div class="w-[320px] h-[460px] bg-[#160a08] rounded-2xl overflow-hidden border border-white/5 hover:border-red-500/30 transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(220,38,38,0.15)] flex flex-col snap-center shrink-0 relative group/card hover:-translate-y-2">
+                            
+                            <div class="absolute top-4 left-0 z-20">
+                                <div class="bg-gradient-to-r from-red-700 to-red-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-r-full shadow-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-bolt animate-pulse text-yellow-300"></i>
+                                    <span x-text="item.discountInfo"></span>
+                                </div>
+                            </div>
+
+                            <div class="relative h-60 w-full overflow-hidden bg-gray-800">
+                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover transition duration-1000 group-hover/card:scale-110 group-hover/card:rotate-1">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#160a08] via-[#160a08]/50 to-transparent"></div>
+                                
+                                <button class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/30 backdrop-blur text-white/70 hover:bg-white hover:text-red-500 transition-all flex items-center justify-center border border-white/10">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            </div>
+
+                            <div class="px-6 pb-6 pt-2 flex flex-col flex-grow relative">
+                                <div class="mb-2 h-14"> 
+                                    <span class="text-[9px] text-langao-gold/80 uppercase tracking-widest mb-1 block" x-text="item.category"></span>
+                                    <h3 class="text-xl font-serif text-white font-bold leading-tight group-hover/card:text-langao-gold transition-colors line-clamp-2" x-text="item.name"></h3>
+                                </div>
+
+                                <div class="mt-2 mb-4">
+                                    <div class="flex justify-between text-[10px] mb-1.5 font-bold">
+                                        <span class="text-gray-400">Terjual</span>
+                                        <span class="text-red-400 animate-pulse">Sisa <span x-text="item.stock"></span></span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                        <div class="h-full bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)]" :style="`width: ${item.soldPercent}%`"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto flex items-center justify-between">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-500 line-through decoration-red-500/50" x-text="formatRupiah(item.originalPrice)"></span>
+                                        <span class="text-2xl font-serif font-bold text-white group-hover/card:text-langao-gold transition-colors shadow-black drop-shadow-lg" x-text="formatRupiah(item.price)"></span>
+                                    </div>
+                                    
+                                    <button @click="addToCart(item)" class="w-12 h-12 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-langao-gold hover:text-black hover:border-langao-gold transition-all duration-300 flex items-center justify-center shadow-lg group-active/card:scale-95 shrink-0">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section class="py-20 border-y border-white/5 bg-[#0a0403] relative overflow-hidden">
+        <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-langao-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+<div class="text-center mb-12">
+                <h4 class="text-langao-gold tracking-[0.3em] uppercase text-sm mb-3 font-bold">Penawaran Eksklusif</h4>
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-white">Promo Spesial</h2>
+                <div class="w-24 h-1 bg-langao-gold mx-auto mt-6 rounded-full"></div>
+            </div>
+        
+       <div id="promoContainer" class="flex overflow-x-auto gap-8 px-6 pb-12 hide-scroll snap-x snap-mandatory container mx-auto" @mouseenter="pauseAutoScroll" @mouseleave="resumeAutoScroll">
+            
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#3e2723] to-[#5d4037]"></div>
+                <img src="https://images.unsplash.com/photo-1544025162-d76690b67f61?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">20%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-orange-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Makanan Berat</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Lunch Feast</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Diskon 20% untuk semua menu Makanan utama.</p>
+                        <div x-data="{ copied: false, code: 'FOODIE20' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-orange-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#1a237e] to-[#283593]"></div>
+                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">15%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-indigo-500/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Minuman</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Coffee Break</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Potongan 15% untuk semua varian kopi dan non-kopi.</p>
+                        <div x-data="{ copied: false, code: 'FRESH15' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-indigo-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#f57f17] to-[#ff6f00]"></div>
+                <img src="https://images.unsplash.com/photo-1573080496987-a199f8cd75c5?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">10%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-amber-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Camilan</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Snack Time</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Teman ngobrol asik dengan diskon 10% menu snack.</p>
+                        <div x-data="{ copied: false, code: 'SNACKTIME' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-amber-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#880e4f] to-[#ad1457]"></div>
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">25%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-pink-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Dessert</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Sweet Treat</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Maniskan harimu dengan diskon 25% aneka Cake.</p>
+                        <div x-data="{ copied: false, code: 'SWEET25' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-pink-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#b71c1c] to-[#c62828]"></div>
+                <img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">10%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-red-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Rice Bowl</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Oishii Deal</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Diskon 10% untuk menu nasi pilihan.</p>
+                        <div x-data="{ copied: false, code: 'RICEBOWL10' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-red-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#4a148c] to-[#6a1b9a]"></div>
+                <img src="https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">20%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-purple-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Italian</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Italian Feast</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Diskon 20% khusus menu Pasta Series.</p>
+                        <div x-data="{ copied: false, code: 'PASTA20' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-purple-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#01579b] to-[#0277bd]"></div>
+                <img src="https://images.unsplash.com/photo-1536935338788-843bb6d8d992?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">2+1</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-cyan-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Mocktails</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Thirsty Hours</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Beli 2 gratis 1 untuk semua varian Mocktail.</p>
+                        <div x-data="{ copied: false, code: 'MOCKTAIL21' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-cyan-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-cyan-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#1b5e20] to-[#2e7d32]"></div>
+                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">15%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-green-600/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Healthy</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Clean Eats</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Diskon 15% untuk menu Salad dan Makanan Sehat.</p>
+                        <div x-data="{ copied: false, code: 'HEALTHY15' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-green-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative min-w-[320px] md:min-w-[500px] h-80 rounded-3xl overflow-hidden shrink-0 snap-center group cursor-pointer border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-br from-[#33691e] to-[#558b2f]"></div>
+                <img src="https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div class="absolute top-4 right-6 text-white/10 font-serif font-bold text-8xl tracking-tighter select-none z-0 group-hover:text-white/20 transition">10%</div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                    <span class="bg-lime-700/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest w-fit shadow-lg backdrop-blur-sm">Tea</span>
+                    <div>
+                        <h3 class="text-3xl font-serif font-bold text-white mb-2 leading-tight">Tea Time</h3>
+                        <p class="text-gray-300 text-sm mb-6 font-light">Nikmati teh artisan premium dengan diskon 10%.</p>
+                        <div x-data="{ copied: false, code: 'TEATIME' }" @click="navigator.clipboard.writeText(code); copied = true; setTimeout(() => copied = false, 2000)" class="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-1 pr-1.5 cursor-pointer hover:bg-white/20 transition group/code w-full max-w-[280px]">
+                            <div class="flex flex-col px-4 py-1"><span class="text-[10px] text-gray-400 uppercase tracking-wider">Kode Kupon</span><span class="text-lime-300 font-mono font-bold text-lg tracking-widest" x-text="code"></span></div>
+                            <div class="w-10 h-10 bg-lime-600 rounded-lg flex items-center justify-center text-white shadow-lg"><i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+  <section id="menu" class="py-24 relative bg-[#0f0504]">
+        <div class="absolute left-0 top-1/4 w-96 h-96 bg-langao-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute right-0 bottom-1/4 w-64 h-64 bg-red-900/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h4 class="text-langao-gold tracking-[0.3em] uppercase text-sm mb-3 font-bold">Menu Pilihan</h4>
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-white">Favorit Pelanggan</h2>
+                <div class="w-24 h-1 bg-langao-gold mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 mb-16">
+                <template x-for="cat in categories" :key="cat">
+                    <button @click="activeCategory = cat" 
+                            :class="activeCategory === cat ? 'bg-langao-gold text-langao-dark shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'"
+                            class="px-8 py-3 rounded-full transition-all duration-300 font-bold tracking-wider uppercase text-xs"
+                            x-text="cat">
+                    </button>
+                </template>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <template x-for="product in filteredProducts" :key="product.id">
+                    <div class="group relative bg-[#1a0b08] rounded-2xl overflow-hidden border border-white/5 hover:border-langao-gold/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-[420px] flex flex-col">
+                        
+                        <div class="relative h-64 overflow-hidden">
+                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            
+                            <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider" x-text="product.category"></div>
+                            
+                            <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 text-langao-gold text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-star"></i> 5.0
+                            </div>
+
+                            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1a0b08] to-transparent"></div>
+                        </div>
+
+                        <div class="p-6 pt-2 flex flex-col flex-grow relative">
+                            <div class="mb-4">
+                                <h3 class="text-xl font-serif text-white font-bold mb-2 leading-tight group-hover:text-langao-gold transition-colors" x-text="product.name"></h3>
+                                <p class="text-gray-500 text-xs leading-relaxed line-clamp-2" x-text="product.description"></p>
+                            </div>
+
+                            <div class="mt-auto flex items-center justify-between relative z-10">
+                                <span class="text-2xl font-serif font-bold text-langao-gold" x-text="formatRupiah(product.price)"></span>
+                                
+                                <button @click="addToCart(product)" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-langao-gold hover:text-langao-dark hover:border-langao-gold transition-all duration-300">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="text-center mt-16">
+                <a href="#" class="inline-flex items-center gap-2 text-gray-400 hover:text-langao-gold transition-colors text-sm tracking-widest uppercase border-b border-transparent hover:border-langao-gold pb-1">
+                    Lihat Menu Lengkap <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+   <section id="more-menu" class="py-24 relative bg-[#0f0504]">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-[#0f0504] via-transparent to-[#0f0504]"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h4 class="text-langao-gold tracking-[0.3em] uppercase text-sm mb-3 font-bold">Jelajahi Rasa</h4>
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-white">Koleksi Spesial Lainnya</h2>
+                <div class="w-24 h-1 bg-langao-gold mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 mb-14">
+                <template x-for="cat in otherCategories" :key="cat">
+                    <button @click="activeOtherCategory = cat" 
+                            :class="activeOtherCategory === cat ? 'bg-langao-gold text-langao-dark shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'bg-transparent text-gray-400 hover:text-white border border-white/10 hover:border-langao-gold'"
+                            class="px-8 py-2.5 rounded-full transition-all duration-300 font-bold tracking-wider uppercase text-xs"
+                            x-text="cat">
+                    </button>
+                </template>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <template x-for="product in filteredOtherProducts" :key="product.id">
+                    <div class="group relative bg-[#160a08] rounded-3xl p-3 border border-white/5 hover:border-langao-gold/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-[480px]">
+                        
+                        <div class="relative h-64 w-full rounded-2xl overflow-hidden bg-gray-900">
+                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
+                            
+                            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
+                                <span class="text-langao-gold font-serif font-bold text-sm tracking-wide" x-text="formatRupiah(product.price)"></span>
+                            </div>
+
+                            <div class="absolute top-3 right-3 text-white text-[10px] bg-black/40 backdrop-blur px-2 py-1 rounded-full border border-white/10">
+                                <i class="fa-solid fa-star text-yellow-500"></i> 5.0
+                            </div>
+                        </div>
+
+                        <div class="pt-6 pb-2 px-2 flex flex-col flex-grow text-center items-center">
+                            <span class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2 group-hover:text-langao-gold transition-colors" x-text="product.category"></span>
+                            
+                            <h3 class="text-xl font-serif text-white font-bold leading-tight mb-3" x-text="product.name"></h3>
+                            
+                            <p class="text-gray-400 text-xs leading-relaxed line-clamp-2 px-2 mb-4" x-text="product.description"></p>
+
+                            <div class="mt-auto w-full">
+                                <button @click="addToCart(product)" class="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white font-bold text-xs uppercase tracking-widest hover:bg-langao-gold hover:text-langao-dark hover:border-langao-gold transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+                                    <span>Add to Cart</span>
+                                    <i class="fa-solid fa-plus group-hover/btn:rotate-90 transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="text-center mt-20">
+                <a href="#" class="inline-flex items-center justify-center w-16 h-16 rounded-full border border-white/10 text-gray-400 hover:text-langao-gold hover:border-langao-gold hover:bg-white/5 transition-all duration-300 animate-bounce">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section id="news" class="py-24 relative bg-[#080403] border-t border-white/5">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-5 pointer-events-none"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-langao-gold/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+           <div class="text-center mb-12">
+                <h4 class="text-langao-gold tracking-[0.3em] uppercase text-sm mb-3 font-bold">Jurnal Langao</h4>
+                
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Cerita di Balik <span class="italic text-gray-500">Setiap Cangkir</span></h2>
+                
+                <p class="text-gray-400 text-base leading-relaxed max-w-2xl mx-auto mb-8">
+                    Temukan inspirasi, jadwal event terbaru, edukasi kopi, dan inisiatif keberlanjutan kami.
+                </p>
+                
+
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 mb-12 overflow-x-auto hide-scroll pb-2">
+                <template x-for="cat in newsCategories" :key="cat">
+                    <button @click="activeNewsCategory = cat" 
+                            :class="activeNewsCategory === cat ? 'bg-white text-black border-white' : 'bg-transparent text-gray-400 border-white/10 hover:border-langao-gold hover:text-langao-gold'"
+                            class="px-6 py-2.5 rounded-full border transition-all duration-300 font-bold tracking-wide uppercase text-[10px] whitespace-nowrap"
+                            x-text="cat">
+                    </button>
+                </template>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <template x-for="item in filteredNews" :key="item.id">
+                    <article class="group cursor-pointer flex flex-col h-full">
+                        <div class="relative h-60 w-full rounded-2xl overflow-hidden mb-6">
+                            <img :src="item.image" :alt="item.title" class="w-full h-full object-cover transition duration-700 group-hover:scale-110 group-hover:grayscale-[20%]">
+                            
+                            <div class="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex flex-col items-center text-center min-w-[50px]">
+                                <span class="text-xl font-bold text-white leading-none" x-text="item.day"></span>
+                                <span class="text-[9px] uppercase text-langao-gold font-bold tracking-wider" x-text="item.month"></span>
+                            </div>
+
+                            <div class="absolute bottom-4 left-4">
+                                <span class="bg-langao-gold text-black text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest" x-text="item.category"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col flex-grow">
+                            <h3 class="text-xl font-serif font-bold text-white mb-3 leading-snug group-hover:text-langao-gold transition-colors line-clamp-2" x-text="item.title"></h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3" x-text="item.excerpt"></p>
+                            
+                            <div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                                <span class="text-xs text-gray-600 italic" x-text="'Oleh: ' + item.author"></span>
+                                <span class="text-xs text-langao-gold font-bold uppercase tracking-wider group-hover:translate-x-1 transition flex items-center gap-2">
+                                    Baca <i class="fa-solid fa-arrow-right"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                </template>
+            </div>
+        </div>
+    </section>
+
+  <section id="outlets" class="py-24 relative">
+        <div class="absolute right-0 bottom-20 w-80 h-80 bg-langao-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                 <h4 class="text-langao-gold tracking-[0.3em] uppercase text-sm mb-3 font-bold">Kunjungi Kami</h4>
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-white">Lokasi Outlet <span class="text-langao-gold">Langao</span></h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="group relative rounded-2xl overflow-hidden border border-white/10 bg-[#120806] hover:shadow-[0_10px_40px_rgba(212,175,55,0.1)] transition duration-500">
+                    <div class="h-64 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-black/20 z-10 group-hover:bg-transparent transition duration-500"></div>
+                        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80" alt="Langao Central" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700 ease-in-out">
+                        <div class="absolute top-4 left-4 z-20 bg-langao-dark/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded text-xs font-bold text-langao-gold uppercase tracking-wider">
+                            Pusat
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 relative">
+                        <div class="absolute -top-6 right-8 w-12 h-12 bg-langao-gold rounded-full flex items-center justify-center text-langao-dark shadow-xl group-hover:scale-110 transition duration-300 z-20 border-4 border-[#120806]">
+                             <i class="fa-solid fa-map-location-dot text-lg"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-serif font-bold text-white mb-2 group-hover:text-langao-gold transition">Langao Central</h3>
+                        <div class="space-y-4 mb-8 mt-4 border-t border-white/10 pt-4">
+                            <p class="text-gray-400 text-sm flex items-start gap-3">
+                                <i class="fa-solid fa-location-dot mt-1 text-langao-gold"></i>
+                                <span>Jl. Sudirman No. 45, Jakarta Pusat<br><span class="text-xs text-gray-600">Lantai 1, Gedung Utama</span></span>
+                            </p>
+                            <p class="text-gray-400 text-sm flex items-center gap-3">
+                                <i class="fa-regular fa-clock text-langao-gold"></i>
+                                07:00 - 22:00 WIB
+                            </p>
+                        </div>
+                        
+                        <a href="#" class="inline-flex items-center gap-2 text-white text-sm font-bold tracking-wider uppercase hover:text-langao-gold transition group/link bg-white/5 w-full justify-center py-3 rounded hover:bg-white/10">
+                            Lihat di Peta 
+                            <i class="fa-solid fa-arrow-right transform group-hover/link:translate-x-1 transition duration-300"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="group relative rounded-2xl overflow-hidden border border-white/10 bg-[#120806] hover:shadow-[0_10px_40px_rgba(212,175,55,0.1)] transition duration-500">
+                    <div class="h-64 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-black/20 z-10 group-hover:bg-transparent transition duration-500"></div>
+                        <img src="https://images.unsplash.com/photo-1579888944880-d98341245702?auto=format&fit=crop&w=800&q=80" alt="Langao Garden" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700 ease-in-out">
+                    </div>
+                    
+                    <div class="p-8 relative">
+                        <div class="absolute -top-6 right-8 w-12 h-12 bg-[#2d3a28] border-4 border-[#120806] rounded-full flex items-center justify-center text-white shadow-xl group-hover:bg-langao-gold group-hover:text-langao-dark group-hover:scale-110 transition duration-300 z-20">
+                             <i class="fa-solid fa-leaf text-lg"></i>
+                        </div>
+
+                        <h3 class="text-2xl font-serif font-bold text-white mb-2 group-hover:text-langao-gold transition">Langao Garden</h3>
+                        <div class="space-y-4 mb-8 mt-4 border-t border-white/10 pt-4">
+                            <p class="text-gray-400 text-sm flex items-start gap-3">
+                                <i class="fa-solid fa-location-dot mt-1 text-langao-gold"></i>
+                                <span>Jl. Dago Atas No. 88, Bandung<br><span class="text-xs text-gray-600">View Bukit</span></span>
+                            </p>
+                            <p class="text-gray-400 text-sm flex items-center gap-3">
+                                <i class="fa-regular fa-clock text-langao-gold"></i>
+                                08:00 - 23:00 WIB
+                            </p>
+                        </div>
+
+                        <a href="#" class="inline-flex items-center gap-2 text-white text-sm font-bold tracking-wider uppercase hover:text-langao-gold transition group/link bg-white/5 w-full justify-center py-3 rounded hover:bg-white/10">
+                            Lihat di Peta 
+                            <i class="fa-solid fa-arrow-right transform group-hover/link:translate-x-1 transition duration-300"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="group relative rounded-2xl overflow-hidden border border-white/10 bg-[#120806] hover:shadow-[0_10px_40px_rgba(212,175,55,0.1)] transition duration-500">
+                    <div class="h-64 overflow-hidden relative">
+                         <div class="absolute inset-0 bg-black/20 z-10 group-hover:bg-transparent transition duration-500"></div>
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" alt="Langao Beach" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700 ease-in-out">
+                         <div class="absolute top-4 left-4 z-20 bg-orange-600/90 backdrop-blur-md border border-white/10 px-3 py-1 rounded text-xs font-bold text-white uppercase tracking-wider">
+                            Sunset Point
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 relative">
+                         <div class="absolute -top-6 right-8 w-12 h-12 bg-[#3e2723] border-4 border-[#120806] rounded-full flex items-center justify-center text-white shadow-xl group-hover:bg-langao-gold group-hover:text-langao-dark group-hover:scale-110 transition duration-300 z-20">
+                             <i class="fa-solid fa-umbrella-beach text-lg"></i>
+                        </div>
+
+                        <h3 class="text-2xl font-serif font-bold text-white mb-2 group-hover:text-langao-gold transition">Langao Beach</h3>
+                        <div class="space-y-4 mb-8 mt-4 border-t border-white/10 pt-4">
+                             <p class="text-gray-400 text-sm flex items-start gap-3">
+                                <i class="fa-solid fa-location-dot mt-1 text-langao-gold"></i>
+                                <span>Jl. Sunset Road, Bali<br><span class="text-xs text-gray-600">Area Teras Pantai</span></span>
+                            </p>
+                            <p class="text-gray-400 text-sm flex items-center gap-3">
+                                <i class="fa-regular fa-clock text-langao-gold"></i>
+                                10:00 - 00:00 WITA
+                            </p>
+                        </div>
+
+                        <a href="#" class="inline-flex items-center gap-2 text-white text-sm font-bold tracking-wider uppercase hover:text-langao-gold transition group/link bg-white/5 w-full justify-center py-3 rounded hover:bg-white/10">
+                            Lihat di Peta 
+                            <i class="fa-solid fa-arrow-right transform group-hover/link:translate-x-1 transition duration-300"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gradient-to-t from-langao-dark to-transparent">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="glass p-8 md:p-12 rounded-2xl border border-white/10">
+                <h2 class="text-3xl font-serif font-bold text-center mb-8 text-white">Saran & Masukan</h2>
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Nama Lengkap</label>
+                            <input type="text" class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-langao-gold focus:ring-1 focus:ring-langao-gold transition" placeholder="John Doe">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">Email</label>
+                            <input type="email" class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-langao-gold focus:ring-1 focus:ring-langao-gold transition" placeholder="email@example.com">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-400">Pesan Anda</label>
+                        <textarea rows="4" class="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-langao-gold focus:ring-1 focus:ring-langao-gold transition" placeholder="Tulis pengalaman anda di sini..."></textarea>
+                    </div>
+                    <button type="button" class="w-full bg-langao-gold text-langao-dark font-bold py-4 rounded-lg hover:bg-white transition duration-300 uppercase tracking-widest">
+                        Kirim Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 text-center bg-[url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-fixed bg-cover relative">
+        <div class="absolute inset-0 bg-black/70"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-4xl md:text-6xl font-serif font-bold text-white mb-6">Siap Menikmati Kemewahan?</h2>
+            <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">Bergabunglah dengan program membership kami dan dapatkan diskon eksklusif.</p>
+            <button class="bg-transparent border-2 border-langao-gold text-langao-gold px-10 py-4 rounded-full font-bold uppercase hover:bg-langao-gold hover:text-langao-dark transition duration-300 scale-100 hover:scale-105">
+                Daftar Member Gratis
+            </button>
+        </div>
+    </section>
+<footer class="bg-[#050303] border-t border-white/5 pt-20 pb-10 relative overflow-hidden text-sm">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                
+                <div class="space-y-6">
+                    <a href="#" class="text-3xl font-serif font-bold text-langao-gold tracking-widest uppercase flex items-center gap-3">
+                        <i class="fa-solid fa-mug-hot"></i> Langao
+                    </a>
+                    <p class="text-gray-500 leading-relaxed pr-4">
+                        Menghadirkan seni kopi premium dan kuliner berkelas sejak 2024. Tempat di mana rasa, suasana, dan kehangatan bertemu.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-langao-gold hover:text-black hover:border-langao-gold transition-all duration-300">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-langao-gold hover:text-black hover:border-langao-gold transition-all duration-300">
+                            <i class="fa-brands fa-tiktok"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-langao-gold hover:text-black hover:border-langao-gold transition-all duration-300">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest mb-6 text-xs">Jelajahi</h4>
+                    <ul class="space-y-4 text-gray-500">
+                        <li><a href="#home" class="hover:text-langao-gold transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[8px] text-white/20"></i> Beranda</a></li>
+                        <li><a href="#menu" class="hover:text-langao-gold transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[8px] text-white/20"></i> Menu Favorit</a></li>
+                        <li><a href="#flash-sale" class="hover:text-langao-gold transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[8px] text-white/20"></i> Flash Sale</a></li>
+                        <li><a href="#outlets" class="hover:text-langao-gold transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[8px] text-white/20"></i> Lokasi Outlet</a></li>
+                        <li><a href="#news" class="hover:text-langao-gold transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[8px] text-white/20"></i> Berita & Event</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest mb-6 text-xs">Hubungi Kami</h4>
+                    <ul class="space-y-4 text-gray-500">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-location-dot mt-1 text-langao-gold"></i>
+                            <span>Jl. Jend. Sudirman No. 45,<br>Jakarta Pusat, Indonesia</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-langao-gold"></i>
+                            <span>+62 889-8545-4681</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-envelope text-langao-gold"></i>
+                            <span>hello@langaocafe.com</span>
+                        </li>
+                        <li class="flex items-start gap-3 pt-2 border-t border-white/5 mt-2">
+                            <i class="fa-regular fa-clock mt-1 text-langao-gold"></i>
+                            <div>
+                                <span class="block text-white text-xs font-bold">Jam Operasional:</span>
+                                <span>Senin - Minggu: 07:00 - 23:00</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest mb-6 text-xs">Newsletter</h4>
+                    <p class="text-gray-500 mb-4 text-xs">Dapatkan info promo eksklusif dan menu terbaru langsung di email Anda.</p>
+                    <form class="space-y-3">
+                        <div class="relative">
+                            <input type="email" placeholder="Alamat Email Anda" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-langao-gold transition text-xs placeholder-gray-600">
+                        </div>
+                        <button type="button" class="w-full bg-langao-gold text-black font-bold py-3 rounded-lg hover:bg-white transition-colors uppercase tracking-wider text-xs">
+                            Berlangganan
+                        </button>
+                    </form>
+                    <p class="text-gray-600 text-[10px] mt-3">Kami menghargai privasi Anda. Unsubscribe kapan saja.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-600 text-xs">
+                    &copy; 2024 <span class="text-langao-gold">Langao Cafe</span>. All Rights Reserved.
+                </p>
+                <div class="flex gap-6 text-xs text-gray-600">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition">FAQ</a>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#" class="fixed bottom-8 right-8 bg-langao-gold text-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:-translate-y-1 transition-transform z-40 opacity-80 hover:opacity-100" title="Kembali ke Atas">
+            <i class="fa-solid fa-arrow-up"></i>
+        </a>
+    </footer>
+
+   <div x-show="cartOpen" class="relative z-[100]" aria-labelledby="slide-over-title" role="dialog" aria-modal="true" style="display: none;">
+        <div x-show="cartOpen" x-transition:enter="ease-in-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in-out duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/90 backdrop-blur-sm transition-opacity" @click="cartOpen = false"></div>
+
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-0 md:pl-10">
+                    <div x-show="cartOpen" x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="pointer-events-auto w-screen max-w-md">
+                        <div class="flex h-full flex-col overflow-y-scroll bg-[#0f0504] border-l border-white/10 shadow-2xl">
+                            
+                            <div class="flex items-start justify-between px-4 py-6 sm:px-6 border-b border-white/10 bg-[#160a08]">
+                                <h2 class="text-xl font-serif font-bold text-white" id="slide-over-title">Keranjang Belanja</h2>
+                                <div class="ml-3 flex h-7 items-center">
+                                    <button type="button" class="relative -m-2 p-2 text-gray-400 hover:text-white transition" @click="cartOpen = false">
+                                        <i class="fa-solid fa-xmark text-2xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+                                <div class="flow-root">
+                                    <ul role="list" class="-my-6 divide-y divide-white/5">
+                                        <li x-show="cart.length === 0" class="py-12 text-center flex flex-col items-center">
+                                            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                                                <i class="fa-solid fa-basket-shopping text-gray-500 text-2xl"></i>
+                                            </div>
+                                            <p class="text-gray-400">Keranjang Anda masih kosong.</p>
+                                            <button @click="cartOpen = false" class="mt-4 text-langao-gold text-sm hover:underline">Mulai Belanja</button>
+                                        </li>
+
+                                        <template x-for="(item, index) in cart" :key="index">
+                                            <li class="flex py-6">
+                                                <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
+                                                    <img :src="item.image" :alt="item.name" class="h-full w-full object-cover object-center">
+                                                </div>
+
+                                                <div class="ml-4 flex flex-1 flex-col">
+                                                    <div>
+                                                        <div class="flex justify-between text-base font-medium text-white">
+                                                            <h3 x-text="item.name" class="line-clamp-1"></h3>
+                                                            <p class="ml-4 text-langao-gold whitespace-nowrap" x-text="formatRupiah(item.price * item.quantity)"></p>
+                                                        </div>
+                                                        <p class="mt-1 text-xs text-gray-500" x-text="item.category"></p>
+                                                    </div>
+                                                    <div class="flex flex-1 items-end justify-between text-sm mt-2">
+                                                        <div class="flex items-center border border-white/20 rounded bg-white/5">
+                                                            <button @click="updateQuantity(item.id, -1)" class="px-2 py-0.5 hover:bg-white/10 text-white">-</button>
+                                                            <span class="px-2 text-white text-xs" x-text="item.quantity"></span>
+                                                            <button @click="updateQuantity(item.id, 1)" class="px-2 py-0.5 hover:bg-white/10 text-white">+</button>
+                                                        </div>
+
+                                                        <button type="button" @click="removeFromCart(item.id)" class="text-xs font-medium text-red-400 hover:text-red-300 transition">Hapus</button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-white/10 px-4 py-6 sm:px-6 bg-[#160a08]" x-show="cart.length > 0">
+                                
+                                <div class="space-y-4 mb-6">
+                                    <h3 class="text-white text-sm font-bold uppercase tracking-wider mb-3 border-b border-white/10 pb-2">Informasi Pembeli</h3>
+                                    
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Nama Penerima</label>
+                                        <input type="text" x-model="customerName" placeholder="Contoh: Budi Santoso" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">WhatsApp (Aktif)</label>
+                                        <input type="tel" x-model="customerPhone" placeholder="Contoh: 0812xxxx" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Metode Pembayaran</label>
+                                        <div class="relative">
+                                            <select x-model="selectedPayment" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition appearance-none cursor-pointer">
+                                                <option value="" disabled selected>Pilih Pembayaran</option>
+                                                <template x-for="method in paymentMethods" :key="method">
+                                                    <option :value="method" x-text="method" class="bg-[#1a0b08] text-gray-300"></option>
+                                                </template>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <label class="block text-xs text-langao-gold font-bold mb-2 uppercase tracking-wide">Punya Kode Promo?</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" x-model="couponCode" placeholder="Masukkan kode" class="w-full bg-black/40 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold uppercase placeholder-gray-600">
+                                        <button @click="applyCoupon" class="bg-white/10 border border-white/10 text-white px-4 py-2 rounded hover:bg-langao-gold hover:text-black hover:border-langao-gold transition text-sm font-bold">
+                                            Cek
+                                        </button>
+                                    </div>
+                                    
+                                    <div x-show="couponMessage" x-transition class="mt-2 text-xs flex items-center gap-2" :class="couponSuccess ? 'text-green-400' : 'text-red-400'">
+                                        <i class="fa-solid" :class="couponSuccess ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
+                                        <span x-text="couponMessage"></span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 mb-6 text-sm">
+                                    <div class="flex justify-between text-gray-400">
+                                        <p>Subtotal</p>
+                                        <p x-text="formatRupiah(subtotal)"></p>
+                                    </div>
+                                    
+                               <div x-show="discountPercent > 0" class="flex justify-between text-green-400 animate-pulse">
+                                    <p>Diskon Promo <span x-show="activeCouponName" x-text="'(' + activeCouponName + ')'" class="text-[10px] uppercase border border-green-500/30 px-1 rounded ml-1"></span></p>
+                                        <p x-text="'- ' + formatRupiah(discountAmount)"></p>
+                                    </div>
+
+                                    <div class="flex justify-between text-xl font-bold text-white border-t border-white/10 pt-4 mt-4">
+                                        <p>Total Bayar</p>
+                                        <p class="text-langao-gold" x-text="formatRupiah(total)"></p>
+                                    </div>
+                                </div>
+
+                                <button @click="checkoutWhatsApp" 
+                                        :disabled="cart.length === 0"
+                                        class="w-full bg-gradient-to-r from-langao-gold to-yellow-600 text-black font-bold py-4 rounded-xl hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-[1.02] transition duration-300 uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span>Checkout via WhatsApp</span>
+                                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                                </button>
+                                
+                                <p class="text-[10px] text-gray-500 text-center mt-3">
+                                    Pesanan akan diteruskan ke WhatsApp Admin Langao (+62 889-8545-4681)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi Timer Alpine.js
+        function timer() {
+            return {
+                time: {
+                    Jam: '02',
+                    Menit: '00',
+                    Detik: '00'
+                },
+                endTime: new Date().getTime() + (2 * 60 * 60 * 1000), // Set timer 2 jam dari sekarang
+                start() {
+                    setInterval(() => {
+                        const now = new Date().getTime();
+                        const distance = this.endTime - now;
+
+                        if (distance < 0) {
+                            // Reset jika waktu habis (demo loop)
+                            this.endTime = new Date().getTime() + (2 * 60 * 60 * 1000); 
+                            return;
+                        }
+
+                        this.time.Jam = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                        this.time.Menit = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                        this.time.Detik = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+                    }, 1000);
+                }
+            }
+        }
+        function langaoApp() {
+            return {
+                mobileMenuOpen: false,
+                cartOpen: false,
+                isScrolled: false,
+                activeCategory: 'Semua',
+                categories: ['Semua', 'Minuman', 'Makanan', 'Snack', 'Cake'],
+                couponCode: '',
+                discountPercent: 0,
+                couponMessage: '',
+                
+                // Banner Auto Scroll Logic
+                scrollInterval: null,
+                
+                init() {
+                    this.startAutoScroll();
+                },
+
+                startAutoScroll() {
+                    this.scrollInterval = setInterval(() => {
+                        this.scrollPromo('right');
+                    }, 3000);
+                },
+
+                pauseAutoScroll() {
+                    clearInterval(this.scrollInterval);
+                },
+
+                resumeAutoScroll() {
+                    this.startAutoScroll();
+                },
+
+                scrollPromo(direction) {
+                    const container = document.getElementById('promoContainer');
+                    const scrollAmount = 300; 
+                    if (direction === 'left') {
+                        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    } else {
+                        // Check if end is reached for loop effect (simplified)
+                        if(container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+                            container.scrollTo({left:0, behavior:'smooth'});
+                        } else {
+                            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                        }
+                    }
+                },
+                // --- TAMBAHKAN KODE INI DI DALAM OBJECT RETURN ALINE.JS ---
+                // --- LOGIKA & DATA NEWS SECTION ---
+                activeNewsCategory: 'Events',
+                newsCategories: ['Events', 'Coffee Talk', 'Sustainability', 'Community', 'Promo Update', 'Behind The Scenes'],
+                
+                get filteredNews() {
+                    return this.newsList.filter(n => n.category === this.activeNewsCategory);
+                },
+
+                // Total 30 Berita (5 per Kategori)
+                newsList: [
+                    // 1. Kategori: EVENTS
+                    { id: 101, category: 'Events', day: '25', month: 'FEB', title: 'Langao Jazz Night: Tribute to Sinatra', author: 'Event Team', excerpt: 'Nikmati malam penuh nostalgia dengan alunan musik Jazz klasik dan kopi signature kami. Menghadirkan musisi lokal ternama.', image: 'https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&w=600&q=80' },
+                    { id: 102, category: 'Events', day: '02', month: 'MAR', title: 'Manual Brew Workshop Batch 5', author: 'Head Barista', excerpt: 'Belajar teknik seduh V60 dan Aeropress langsung dari para ahli. Slot terbatas hanya untuk 10 orang.', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80' },
+                    { id: 103, category: 'Events', day: '15', month: 'MAR', title: 'Cupping Session: Taste of Gayo', author: 'Roaster', excerpt: 'Sesi mencicipi (cupping) biji kopi Gayo Wine terbaru hasil panen bulan ini. Gratis untuk member Gold.', image: 'https://images.unsplash.com/photo-1565551949350-934c9c05e1a9?auto=format&fit=crop&w=600&q=80' },
+                    { id: 104, category: 'Events', day: '20', month: 'MAR', title: 'Latte Art Throwdown 2024', author: 'Admin', excerpt: 'Kompetisi latte art amatir antar pelanggan Langao. Rebut hadiah total 5 Juta Rupiah.', image: 'https://images.unsplash.com/photo-1535920557348-7354670081d6?auto=format&fit=crop&w=600&q=80' },
+                    { id: 105, category: 'Events', day: '05', month: 'APR', title: 'Ramadhan Iftar Gathering', author: 'Marketing', excerpt: 'Buka puasa bersama komunitas Langao dengan menu buffet spesial Ramadhan.', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80' },
+
+                    // 2. Kategori: COFFEE TALK
+                    { id: 201, category: 'Coffee Talk', day: '14', month: 'FEB', title: 'Mengenal Perbedaan Arabica vs Robusta', author: 'Barista John', excerpt: 'Panduan dasar bagi pemula untuk memahami profil rasa, kadar kafein, dan cara tanam dua jenis kopi terpopuler.', image: 'https://images.unsplash.com/photo-1511537632536-b7a575808d1c?auto=format&fit=crop&w=600&q=80' },
+                    { id: 202, category: 'Coffee Talk', day: '10', month: 'FEB', title: 'Sejarah Espresso yang Mendunia', author: 'Barista Jane', excerpt: 'Bagaimana mesin uap di Italia mengubah cara dunia menikmati kopi hingga hari ini.', image: 'https://images.unsplash.com/photo-1574358827727-2c1303236e52?auto=format&fit=crop&w=600&q=80' },
+                    { id: 203, category: 'Coffee Talk', day: '01', month: 'FEB', title: 'Tips Menyimpan Biji Kopi di Rumah', author: 'Roaster', excerpt: 'Jangan simpan di kulkas! Simak cara menjaga kesegaran biji kopi agar aromanya tahan lama.', image: 'https://images.unsplash.com/photo-1611854779393-1b2ae54687cd?auto=format&fit=crop&w=600&q=80' },
+                    { id: 204, category: 'Coffee Talk', day: '28', month: 'JAN', title: 'Apa itu Specialty Coffee?', author: 'Q Grader', excerpt: 'Mengupas tuntas syarat kopi bisa disebut Specialty dan mengapa harganya lebih mahal.', image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=600&q=80' },
+                    { id: 205, category: 'Coffee Talk', day: '20', month: 'JAN', title: 'Manfaat Kopi Hitam Bagi Kesehatan', author: 'Dr. Coffee', excerpt: 'Riset terbaru tentang antioksidan dalam kopi dan pengaruhnya terhadap produktivitas.', image: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=600&q=80' },
+
+                    // 3. Kategori: SUSTAINABILITY
+                    { id: 301, category: 'Sustainability', day: '12', month: 'FEB', title: 'Langao Goes Zero Waste', author: 'Founder', excerpt: 'Komitmen kami untuk mengurangi limbah plastik dengan menggunakan sedotan beras dan cup singkong.', image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80' },
+                    { id: 302, category: 'Sustainability', day: '05', month: 'FEB', title: 'Mengolah Ampas Kopi Menjadi Pupuk', author: 'Gardener', excerpt: 'Jangan buang ampas kopimu! Pelajari cara membuatnya menjadi kompos untuk tanaman hias.', image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80' },
+                    { id: 303, category: 'Sustainability', day: '30', month: 'JAN', title: 'Kolaborasi dengan Petani Lokal Bandung', author: 'Sourcing Team', excerpt: 'Kami memotong rantai distribusi untuk memberikan harga terbaik bagi petani kopi di Pangalengan.', image: 'https://images.unsplash.com/photo-1621961458348-f013d219b50c?auto=format&fit=crop&w=600&q=80' },
+                    { id: 304, category: 'Sustainability', day: '15', month: 'JAN', title: 'Bring Your Own Tumbler', author: 'Store Manager', excerpt: 'Dapatkan diskon Rp 5.000 selamanya jika Anda membawa botol minum sendiri.', image: 'https://images.unsplash.com/photo-1595981234058-a9302fb97229?auto=format&fit=crop&w=600&q=80' },
+                    { id: 305, category: 'Sustainability', day: '01', month: 'JAN', title: 'Solar Panel di Outlet Langao Garden', author: 'Engineering', excerpt: 'Langkah pertama kami menuju outlet hemat energi dengan memanfaatkan tenaga surya.', image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80' },
+
+                    // 4. Kategori: COMMUNITY
+                    { id: 401, category: 'Community', day: '22', month: 'FEB', title: 'Coworking Space Meetup', author: 'Community Mgr', excerpt: 'Temu santai para freelancer dan digital nomad yang menjadikan Langao sebagai kantor kedua.', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80' },
+                    { id: 402, category: 'Community', day: '18', month: 'FEB', title: 'Book Club: Diskusi Buku Bulanan', author: 'Librarian', excerpt: 'Bulan ini kita akan membedah buku "Filosofi Kopi" karya Dee Lestari sambil ngopi sore.', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=600&q=80' },
+                    { id: 403, category: 'Community', day: '08', month: 'FEB', title: 'Charity: Kopi untuk Kemanusiaan', author: 'CSR Team', excerpt: 'Seluruh keuntungan penjualan hari Jumat akan didonasikan untuk panti asuhan terdekat.', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=600&q=80' },
+                    { id: 404, category: 'Community', day: '25', month: 'JAN', title: 'Cycling & Coffee Morning', author: 'Cycling Club', excerpt: 'Titik kumpul komunitas sepeda Jakarta Selatan setiap Minggu pagi di Langao Central.', image: 'https://images.unsplash.com/photo-1541625602330-2277a4c46182?auto=format&fit=crop&w=600&q=80' },
+                    { id: 405, category: 'Community', day: '10', month: 'JAN', title: 'Art Exhibition: Local Talent', author: 'Curator', excerpt: 'Pameran lukisan kopi karya seniman muda yang dipajang di dinding Langao selama sebulan.', image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80' },
+
+                    // 5. Kategori: PROMO UPDATE
+                    { id: 501, category: 'Promo Update', day: '14', month: 'FEB', title: 'Valentine Special Bundle', author: 'Marketing', excerpt: 'Paket couple hemat: 2 Kopi + 1 Velvet Cake hanya Rp 100.000 khusus hari kasih sayang.', image: 'https://images.unsplash.com/photo-1516919549054-e08258825f80?auto=format&fit=crop&w=600&q=80' },
+                    { id: 502, category: 'Promo Update', day: '01', month: 'FEB', title: 'New Menu: Mocktail Series', author: 'RnD Team', excerpt: 'Cobain kesegaran 3 menu baru mocktail kami. Diskon 20% selama masa peluncuran.', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80' },
+                    { id: 503, category: 'Promo Update', day: '25', month: 'JAN', title: 'Payday Promo is Back!', author: 'Admin', excerpt: 'Gajian tiba! Nikmati diskon hingga 40% untuk pembelian via aplikasi ojek online.', image: 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&q=80' },
+                    { id: 504, category: 'Promo Update', day: '15', month: 'JAN', title: 'Member Exclusive: Merchandise', author: 'Membership', excerpt: 'Tukar poinmu dengan T-Shirt dan Tote Bag edisi terbatas Langao.', image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80' },
+                    { id: 505, category: 'Promo Update', day: '01', month: 'JAN', title: 'New Year, New Beans', author: 'Roaster', excerpt: 'Dapatkan sampel gratis house blend terbaru kami setiap pembelian di atas Rp 50.000.', image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=600&q=80' },
+
+                    // 6. Kategori: BEHIND THE SCENES
+                    { id: 601, category: 'Behind The Scenes', day: '20', month: 'FEB', title: 'A Day in Life: Head Barista', author: 'HR Team', excerpt: 'Mengikuti keseharian Rian, Head Barista kami, mulai dari kalibrasi mesin hingga closing.', image: 'https://images.unsplash.com/photo-1515286562097-4c07db9315c1?auto=format&fit=crop&w=600&q=80' },
+                    { id: 602, category: 'Behind The Scenes', day: '10', month: 'FEB', title: 'Trip to Kebun Kopi Ciwidey', author: 'Sourcing', excerpt: 'Tim Langao mengunjungi mitra petani kami saat musim panen raya.', image: 'https://images.unsplash.com/photo-1634149022630-9c29e240212f?auto=format&fit=crop&w=600&q=80' },
+                    { id: 603, category: 'Behind The Scenes', day: '05', month: 'FEB', title: 'Proses Roasting: Dark vs Light', author: 'Roaster', excerpt: 'Intip dapur roasting kami dan lihat bagaimana warna biji kopi berubah seiring waktu.', image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=600&q=80' },
+                    { id: 604, category: 'Behind The Scenes', day: '20', month: 'JAN', title: 'Desain Interior Langao Beach', author: 'Architect', excerpt: 'Inspirasi di balik desain outlet Bali kami yang menggabungkan unsur modern dan tradisional.', image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80' },
+                    { id: 605, category: 'Behind The Scenes', day: '10', month: 'JAN', title: 'Team Building 2024', author: 'HR Team', excerpt: 'Keseruan outing tahunan staf Langao di Lembang. Kerja keras, main puas!', image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80' },
+                ],
+                // State untuk Menu Lainnya
+                activeOtherCategory: 'Rice Bowl', // Default category
+                otherCategories: ['Rice Bowl', 'Pasta Series', 'Mocktails', 'Healthy', 'Artisan Tea'],
+
+                // Getter untuk Filter Menu Lainnya
+                get filteredOtherProducts() {
+                    return this.otherProducts.filter(p => p.category === this.activeOtherCategory);
+                },
+                // --- DATA FLASH SALE ---
+              // --- UPDATE DATA FLASH SALE (7 Items) ---
+                flashSaleProducts: [
+                    { 
+                        id: 901, 
+                        name: 'Ultimate Wagyu Platter', 
+                        category: 'Sharing Menu', 
+                        price: 250000, 
+                        originalPrice: 450000, 
+                        description: 'Platter Wagyu A5 shareable.', 
+                        image: 'https://images.unsplash.com/photo-1544025162-d76690b67f61?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: '45% OFF',
+                        stock: 3,
+                        soldPercent: 85
+                    },
+                    { 
+                        id: 902, 
+                        name: 'Gold V60 Brew Kit', 
+                        category: 'Merchandise', 
+                        price: 180000, 
+                        originalPrice: 300000, 
+                        description: 'Paket seduh manual lengkap.', 
+                        image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: 'FLASH 40%',
+                        stock: 5,
+                        soldPercent: 70
+                    },
+                    { 
+                        id: 903, 
+                        name: 'Royal High Tea Set', 
+                        category: 'Package', 
+                        price: 120000, 
+                        originalPrice: 200000, 
+                        description: 'Set ngeteh sore premium.', 
+                        image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: 'LIMITED',
+                        stock: 2,
+                        soldPercent: 92
+                    },
+                    // --- 4 PRODUK TAMBAHAN ---
+                    { 
+                        id: 904, 
+                        name: 'Lobster Thermidor', 
+                        category: 'Premium Dish', 
+                        price: 285000, 
+                        originalPrice: 450000, 
+                        description: 'Lobster utuh panggang keju.', 
+                        image: 'https://images.unsplash.com/photo-1599553557991-89d1b46a2468?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: '35% OFF',
+                        stock: 4,
+                        soldPercent: 60
+                    },
+                    { 
+                        id: 905, 
+                        name: 'Truffle Pizza Whole', 
+                        category: 'Main Course', 
+                        price: 95000, 
+                        originalPrice: 160000, 
+                        description: 'Pizza tipis dengan jamur truffle.', 
+                        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: 'HOT DEAL',
+                        stock: 8,
+                        soldPercent: 45
+                    },
+                    { 
+                        id: 906, 
+                        name: 'Panama Geisha Beans', 
+                        category: 'Coffee Beans', 
+                        price: 350000, 
+                        originalPrice: 500000, 
+                        description: 'Biji kopi langka 200gr.', 
+                        image: 'https://images.unsplash.com/photo-1611854779393-1b2ae54687cd?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: 'RARE ITEM',
+                        stock: 1,
+                        soldPercent: 95
+                    },
+                    { 
+                        id: 907, 
+                        name: 'Saffron Risotto', 
+                        category: 'Main Course', 
+                        price: 110000, 
+                        originalPrice: 180000, 
+                        description: 'Risotto emas dengan saffron.', 
+                        image: 'https://images.unsplash.com/photo-1633966887768-64f9a421a7b5?auto=format&fit=crop&w=600&q=80',
+                        discountInfo: '30% OFF',
+                        stock: 6,
+                        soldPercent: 55
+                    }
+                ],  
+
+                // Data 25 Produk Baru (5 Kategori x 5 Produk)
+                otherProducts: [
+                    // Kategori 1: Rice Bowl (ID 101-105)
+                    { id: 101, name: 'Wagyu Donburi', category: 'Rice Bowl', price: 85000, description: 'Nasi Jepang dengan irisan daging wagyu bakar dan onsen egg.', image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80' },
+                    { id: 102, name: 'Chicken Nanban', category: 'Rice Bowl', price: 55000, description: 'Ayam goreng tepung dengan saus tartar jepang yang creamy.', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80' },
+                    { id: 103, name: 'Salmon Mentai', category: 'Rice Bowl', price: 75000, description: 'Nasi nori dengan salmon grill dan saus mentai bakar.', image: 'https://images.unsplash.com/photo-1552590635-27c2c2128abf?auto=format&fit=crop&w=600&q=80' },
+                    { id: 104, name: 'Beef Black Pepper', category: 'Rice Bowl', price: 60000, description: 'Tumis daging sapi lada hitam dengan paprika segar.', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80' },
+                    { id: 105, name: 'Dori Salted Egg', category: 'Rice Bowl', price: 58000, description: 'Ikan dori krispi berbalut saus telur asin yang gurih.', image: 'https://images.unsplash.com/photo-1579523616971-4124cded7586?auto=format&fit=crop&w=600&q=80' },
+
+                    // Kategori 2: Pasta Series (ID 106-110)
+                    { id: 106, name: 'Creamy Carbonara', category: 'Pasta Series', price: 65000, description: 'Fettuccine dengan saus krim, smoked beef, dan kuning telur.', image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=600&q=80' },
+                    { id: 107, name: 'Lasagna Classico', category: 'Pasta Series', price: 70000, description: 'Pasta lapis panggang dengan daging cincang dan keju melimpah.', image: 'https://images.unsplash.com/photo-1574868235805-c8186198ad1a?auto=format&fit=crop&w=600&q=80' },
+                    { id: 108, name: 'Pesto Genovese', category: 'Pasta Series', price: 62000, description: 'Spaghetti dengan saus basil segar, kacang pinus, dan parmesan.', image: 'https://images.unsplash.com/photo-1595295333158-4742f28fbd85?auto=format&fit=crop&w=600&q=80' },
+                    { id: 109, name: 'Mac & Cheese Truffle', category: 'Pasta Series', price: 55000, description: 'Makaroni keju klasik dengan sentuhan minyak truffle mewah.', image: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=600&q=80' },
+                    { id: 110, name: 'Spicy Tuna Pasta', category: 'Pasta Series', price: 60000, description: 'Pasta aglio olio pedas dengan suwiran ikan tuna segar.', image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=600&q=80' },
+
+                    // Kategori 3: Mocktails (ID 111-115)
+                    { id: 111, name: 'Blue Lagoon', category: 'Mocktails', price: 35000, description: 'Minuman soda biru segar dengan jeruk nipis dan daun mint.', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80' },
+                    { id: 112, name: 'Sunset Mojito', category: 'Mocktails', price: 38000, description: 'Perpaduan strawberry, soda, dan mint yang menyegarkan.', image: 'https://images.unsplash.com/photo-1536935338788-843bb6d8d992?auto=format&fit=crop&w=600&q=80' },
+                    { id: 113, name: 'Lychee Squash', category: 'Mocktails', price: 32000, description: 'Soda leci manis dengan buah leci utuh.', image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80' },
+                    { id: 114, name: 'Virgin Pina Colada', category: 'Mocktails', price: 40000, description: 'Jus nanas dan santan creamy tanpa alkohol.', image: 'https://images.unsplash.com/photo-1525672724774-32537c47f9a1?auto=format&fit=crop&w=600&q=80' },
+                    { id: 115, name: 'Lemon Grass Tea', category: 'Mocktails', price: 30000, description: 'Teh serai dingin dengan madu dan lemon.', image: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=600&q=80' },
+
+                    // Kategori 4: Healthy (ID 116-120)
+                    { id: 116, name: 'Caesar Salad', category: 'Healthy', price: 55000, description: 'Selada romain, ayam panggang, crouton, dan dressing caesar.', image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=600&q=80' },
+                    { id: 117, name: 'Acai Berry Bowl', category: 'Healthy', price: 65000, description: 'Smoothie bowl beri dengan granola, pisang, dan chia seeds.', image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=600&q=80' },
+                    { id: 118, name: 'Avocado Toast', category: 'Healthy', price: 45000, description: 'Roti gandum panggang dengan alpukat tumbuk dan telur rebus.', image: 'https://images.unsplash.com/photo-1603046891744-1f76eb10aec1?auto=format&fit=crop&w=600&q=80' },
+                    { id: 119, name: 'Quinoa Salad', category: 'Healthy', price: 60000, description: 'Superfood quinoa dengan sayuran segar dan dressing lemon.', image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=600&q=80' },
+                    { id: 120, name: 'Green Detox Juice', category: 'Healthy', price: 40000, description: 'Jus bayam, apel hijau, timun, dan seledri murni.', image: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=600&q=80' },
+
+                    // Kategori 5: Artisan Tea (ID 121-125)
+                    { id: 121, name: 'Earl Grey Reserve', category: 'Artisan Tea', price: 35000, description: 'Teh hitam klasik dengan aroma minyak bergamot yang khas.', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80' },
+                    { id: 122, name: 'Chamomile Flowers', category: 'Artisan Tea', price: 35000, description: 'Teh bunga chamomile utuh untuk efek menenangkan.', image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=600&q=80' },
+                    { id: 123, name: 'Jasmine Pearl', category: 'Artisan Tea', price: 38000, description: 'Teh hijau yang digulung tangan dengan aroma melati kuat.', image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=600&q=80' },
+                    { id: 124, name: 'Peppermint Breeze', category: 'Artisan Tea', price: 32000, description: 'Daun mint murni yang menyegarkan tenggorokan.', image: 'https://images.unsplash.com/photo-1626514210620-36657c91c015?auto=format&fit=crop&w=600&q=80' },
+                    { id: 125, name: 'Oolong High Mountain', category: 'Artisan Tea', price: 40000, description: 'Teh oolong premium dari dataran tinggi taiwan.', image: 'https://images.unsplash.com/photo-1563911892437-1e59bd2e4116?auto=format&fit=crop&w=600&q=80' },
+                ],
+
+                // Product Data
+           // Product Data (LENGKAP: 28 Item)
+                products: [
+                    // --- ORIGINAL FAVORITES (ID 1-8) ---
+                    { id: 1, name: 'Signature Gold Latte', category: 'Minuman', price: 45000, description: 'Espresso dengan susu almond, madu manuka, dan taburan emas 24k yang aman dimakan.', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80' },
+                    { id: 2, name: 'Royal Truffle Fries', category: 'Snack', price: 65000, description: 'Kentang goreng renyah dengan minyak truffle Italia dan parutan parmesan.', image: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=600&q=80' },
+                    { id: 3, name: 'Velvet Cheesecake', category: 'Cake', price: 55000, description: 'Cheesecake lembut dengan dasar biskuit merah dan topping buah beri segar.', image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&q=80' },
+                    { id: 4, name: 'Wagyu Beef Burger', category: 'Makanan', price: 125000, description: 'Daging wagyu premium, keju cheddar, bawang karamel, dan saus rahasia Langao.', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+                    { id: 5, name: 'Matcha Kyoto', category: 'Minuman', price: 42000, description: 'Matcha impor langsung dari Kyoto dengan susu segar dan foam tebal.', image: 'https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?auto=format&fit=crop&w=600&q=80' },
+                    { id: 6, name: 'Croissant Almond', category: 'Snack', price: 35000, description: 'Pastry mentega berlapis dengan isian krim almond yang melimpah.', image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80' },
+                    { id: 7, name: 'Cold Brew Reserve', category: 'Minuman', price: 40000, description: 'Kopi seduh dingin yang direndam 24 jam untuk rasa yang halus dan rendah asam.', image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80' },
+                    { id: 8, name: 'Spaghetti Aglio Olio', category: 'Makanan', price: 75000, description: 'Pasta klasik dengan bawang putih, minyak zaitun, cabai kering, dan udang.', image: 'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=600&q=80' },
+
+                    // --- NEW ITEMS: MINUMAN (ID 9-13) ---
+                    { id: 9, name: 'Charcoal Vanilla Latte', category: 'Minuman', price: 48000, description: 'Perpaduan unik activated charcoal, espresso ringan, dan sirup vanila madagaskar.', image: 'https://images.unsplash.com/photo-1461023058943-48db09b9ac19?auto=format&fit=crop&w=600&q=80' },
+                    { id: 10, name: 'Hojicha Roasted Tea', category: 'Minuman', price: 42000, description: 'Teh hijau panggang Jepang dengan aroma smokey yang khas dan susu oat.', image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80' },
+                    { id: 11, name: 'Avocado Coffee Float', category: 'Minuman', price: 55000, description: 'Jus alpukat mentega kental disiram espresso double shot dan es krim cokelat.', image: 'https://images.unsplash.com/photo-1621221768689-53b4dc4a8eb9?auto=format&fit=crop&w=600&q=80' },
+                    { id: 12, name: 'Rose Petal Infusion', category: 'Minuman', price: 38000, description: 'Teh artisan dengan kelopak mawar asli, chamomile, dan sedikit madu hutan.', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80' },
+                    { id: 13, name: 'Belgium Dark Chocolate', category: 'Minuman', price: 50000, description: 'Cokelat Belgia murni 70% dilelehkan dengan susu panas dan marshmallow bakar.', image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=80' },
+
+                    // --- NEW ITEMS: MAKANAN (ID 14-18) ---
+                    { id: 14, name: 'Norwegian Salmon Steak', category: 'Makanan', price: 145000, description: 'Salmon pan-seared dengan kulit renyah, disajikan dengan pure kentang dan saus lemon.', image: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?auto=format&fit=crop&w=600&q=80' },
+                    { id: 15, name: 'Truffle Mushroom Risotto', category: 'Makanan', price: 95000, description: 'Nasi Arborio Italia dimasak perlahan dengan jamur hutan dan minyak truffle putih.', image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=600&q=80' },
+                    { id: 16, name: 'Duck Confit', category: 'Makanan', price: 110000, description: 'Paha bebek masak lambat khas Prancis, sangat lembut dengan kulit garing.', image: 'https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?auto=format&fit=crop&w=600&q=80' },
+                    { id: 17, name: 'Ribeye Steak 200g', category: 'Makanan', price: 185000, description: 'Daging sapi impor Australia dipanggang sesuai selera, dengan saus lada hitam.', image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=600&q=80' },
+                    { id: 18, name: 'Lobster Pasta Marinara', category: 'Makanan', price: 165000, description: 'Pasta fettuccine dengan saus tomat segar dan potongan lobster utuh.', image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=600&q=80' },
+
+                    // --- NEW ITEMS: SNACK (ID 19-23) ---
+                    { id: 19, name: 'Calamari Rings', category: 'Snack', price: 55000, description: 'Cumi goreng tepung bumbu cajun disajikan dengan saus tartar homemade.', image: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80' },
+                    { id: 20, name: 'Bruschetta Platter', category: 'Snack', price: 45000, description: 'Roti baguette panggang dengan topping tomat basil, jamur, dan keju mozzarella.', image: 'https://images.unsplash.com/photo-1572695157369-a0eac2cd4221?auto=format&fit=crop&w=600&q=80' },
+                    { id: 21, name: 'Honey Glazed Wings', category: 'Snack', price: 50000, description: 'Sayap ayam goreng Korea dibalut saus madu bawang putih dan wijen.', image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80' },
+                    { id: 22, name: 'Nachos Supreme', category: 'Snack', price: 60000, description: 'Keripik jagung dengan daging cincang, keju leleh, guacamole, dan salsa.', image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=600&q=80' },
+                    { id: 23, name: 'Onion Rings Tower', category: 'Snack', price: 35000, description: 'Bawang bombay ukuran jumbo digoreng garing, cocok untuk sharing.', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=600&q=80' },
+
+                    // --- NEW ITEMS: CAKE (ID 24-28) ---
+                    { id: 24, name: 'Classic Tiramisu', category: 'Cake', price: 45000, description: 'Dessert Italia otentik dengan mascarpone, espresso ladyfinger, dan bubuk kakao.', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=600&q=80' },
+                    { id: 25, name: 'Mille Crepes Vanilla', category: 'Cake', price: 48000, description: 'Berlapis-lapis crepe tipis dengan krim vanila lembut yang meleleh di mulut.', image: 'https://images.unsplash.com/photo-1629895240417-1049c3b8793c?auto=format&fit=crop&w=600&q=80' },
+                    { id: 26, name: 'Dark Choco Tart', category: 'Cake', price: 42000, description: 'Tart renyah dengan isian ganache cokelat hitam pekat dan garam laut.', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476d?auto=format&fit=crop&w=600&q=80' },
+                    { id: 27, name: 'Macaron Selection', category: 'Cake', price: 55000, description: 'Paket isi 3 macaron Prancis (Pistachio, Raspberry, Salted Caramel).', image: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=600&q=80' },
+                    { id: 28, name: 'Opera Cake', category: 'Cake', price: 60000, description: 'Kue lapis almond sponge, ganache kopi, dan krim mentega yang mewah.', image: 'https://images.unsplash.com/photo-1619985632461-1188a1099684?auto=format&fit=crop&w=600&q=80' },
+                ],
+
+             cart: [],
+                
+                // Checkout Form Data
+                customerName: '',
+                customerPhone: '',
+                selectedPayment: '',
+                paymentMethods: [
+                    'QRIS (All Payment)',
+                    'BCA Virtual Account',
+                    'Mandiri Virtual Account',
+                    'BNI Virtual Account',
+                    'BRI Virtual Account',
+                    'GoPay',
+                    'OVO',
+                    'Dana',
+                    'ShopeePay',
+                    'Bayar di Kasir (Cash)'
+                ],
+
+                // Coupon Logic
+                couponCode: '',
+                couponMessage: '',
+                couponSuccess: false,
+                discountPercent: 0,
+                activeCouponName: '',
+
+                // Getters
+                get filteredProducts() {
+                    if (this.activeCategory === 'Semua') return this.products;
+                    return this.products.filter(p => p.category === this.activeCategory);
+                },
+                // --- PASTE KODE INI DI DALAM "return {" PADA SCRIPT ALPINE.JS ---
+                
+                // Menghitung total jumlah barang di keranjang untuk badge notifikasi
+                get cartTotalItems() {
+                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                },
+
+                // Pastikan getter lainnya (filteredProducts, subtotal, dll) tetap ada di bawah atau atasnya.
+                
+                get filteredOtherProducts() {
+                    return this.otherProducts.filter(p => p.category === this.activeOtherCategory);
+                },
+
+                get subtotal() {
+                    return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                },
+
+                get discountAmount() {
+                    return Math.round(this.subtotal * (this.discountPercent / 100));
+                },
+
+                get total() {
+                    return this.subtotal - this.discountAmount;
+                },
+
+                // Actions
+                addToCart(product) {
+                    const existingItem = this.cart.find(item => item.id === product.id);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        // Spread product untuk copy data, set qty 1
+                        this.cart.push({ ...product, quantity: 1 });
+                    }
+                    this.cartOpen = true; 
+                    
+                    // Reset coupon jika cart berubah agar validasi ulang
+                    if(this.couponSuccess) {
+                        this.couponMessage = 'Keranjang berubah, silakan cek ulang kupon.';
+                        this.couponSuccess = false;
+                        this.discountPercent = 0;
+                        this.activeCouponName = '';
+                    }
+                },
+
+                updateQuantity(id, change) {
+                    const item = this.cart.find(item => item.id === id);
+                    if (item) {
+                        item.quantity += change;
+                        if (item.quantity <= 0) {
+                            this.removeFromCart(id);
+                        }
+                    }
+                     // Reset coupon logic
+                     if(this.couponSuccess) {
+                        this.applyCoupon(); // Re-validate automatically
+                    }
+                },
+
+                removeFromCart(id) {
+                    this.cart = this.cart.filter(item => item.id !== id);
+                    if (this.cart.length === 0) {
+                        this.discountPercent = 0;
+                        this.couponSuccess = false;
+                        this.couponMessage = '';
+                    } else if(this.couponSuccess) {
+                        this.applyCoupon(); // Re-validate
+                    }
+                },
+                
+applyCoupon() {
+                    const code = this.couponCode.toUpperCase().trim();
+                    let isValid = false;
+                    let percent = 0;
+                    let msg = '';
+
+                    // Logic Pengecekan Kupon Berdasarkan Kategori
+                    if (code === '') {
+                        msg = 'Masukkan kode kupon.';
+                    } 
+                    
+                    // --- 1. PROMO UTAMA (Makanan, Minuman, Snack, Cake) ---
+                    else if (code === 'FOODIE20') {
+                        // Cek kategori "Makanan"
+                        const hasFood = this.cart.some(item => item.category === 'Makanan');
+                        if (hasFood) { isValid = true; percent = 20; msg = 'Diskon Makanan 20% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk kategori Makanan.'; }
+                    }
+                    else if (code === 'FRESH15') {
+                        // Cek kategori "Minuman"
+                        const hasDrink = this.cart.some(item => item.category === 'Minuman');
+                        if (hasDrink) { isValid = true; percent = 15; msg = 'Diskon Minuman 15% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk kategori Minuman.'; }
+                    }
+                    else if (code === 'SNACKTIME') {
+                        // Cek kategori "Snack"
+                        const hasSnack = this.cart.some(item => item.category === 'Snack');
+                        if (hasSnack) { isValid = true; percent = 10; msg = 'Diskon Snack 10% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk kategori Snack.'; }
+                    }
+                    else if (code === 'SWEET25') {
+                        // Cek kategori "Cake"
+                        const hasCake = this.cart.some(item => item.category === 'Cake');
+                        if (hasCake) { isValid = true; percent = 25; msg = 'Diskon Cake 25% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk kategori Cake.'; }
+                    }
+
+                    // --- 2. PROMO MENU LAINNYA ---
+                    else if (code === 'RICEBOWL10') {
+                        const hasRiceBowl = this.cart.some(item => item.category === 'Rice Bowl');
+                        if (hasRiceBowl) { isValid = true; percent = 10; msg = 'Promo Rice Bowl 10% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk menu Rice Bowl.'; }
+                    }
+                    else if (code === 'PASTA20') {
+                        const hasPasta = this.cart.some(item => item.category === 'Pasta Series');
+                        if (hasPasta) { isValid = true; percent = 20; msg = 'Promo Pasta 20% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk menu Pasta Series.'; }
+                    }
+                    else if (code === 'MOCKTAIL21') {
+                        const hasMocktail = this.cart.some(item => item.category === 'Mocktails');
+                        if (hasMocktail) { isValid = true; percent = 33; msg = 'Promo Mocktail (Buy 2 Get 1) diterapkan!'; } // Approx 33% discount
+                        else { msg = 'Kupon ini hanya untuk Mocktails.'; }
+                    }
+                    else if (code === 'HEALTHY15') {
+                        const hasHealthy = this.cart.some(item => item.category === 'Healthy');
+                        if (hasHealthy) { isValid = true; percent = 15; msg = 'Diskon Healthy Food 15% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk menu Healthy.'; }
+                    }
+                    else if (code === 'TEATIME') {
+                        const hasTea = this.cart.some(item => item.category === 'Artisan Tea');
+                        if (hasTea) { isValid = true; percent = 10; msg = 'Promo Artisan Tea 10% diterapkan!'; }
+                        else { msg = 'Kupon ini hanya untuk Artisan Tea.'; }
+                    }
+
+                    // --- 3. KUPON GENERIK / LAMA (Opsional) ---
+                    else if (code === 'LANGAO50') {
+                        isValid = true; percent = 50; msg = 'Diskon Spesial 50% diterapkan!';
+                    }
+                    else {
+                        msg = 'Kode kupon tidak valid atau kadaluarsa.';
+                    }
+
+                    // Update State
+                    if (isValid) {
+                        this.discountPercent = percent;
+                        this.couponMessage = msg;
+                        this.couponSuccess = true;
+                        this.activeCouponName = code;
+                    } else {
+                        this.discountPercent = 0;
+                        this.couponMessage = msg;
+                        this.couponSuccess = false;
+                        this.activeCouponName = '';
+                    }
+                },             
+               // --- CHECKOUT VIA WHATSAPP (REVISI ID & TANGGAL) ---
+                checkoutWhatsApp() {
+                    // 1. Validasi Input
+                    if (!this.customerName || !this.customerPhone || !this.selectedPayment) {
+                        alert('Mohon lengkapi Nama, No. WhatsApp, dan Metode Pembayaran.');
+                        return;
+                    }
+
+                    // 2. Generate Data Unik
+                    const now = new Date();
+                    // ID Unik: Format LGO-[Detik][Acak] -> Contoh: LGO-458921
+                    const uniqueId = `LGO-${now.getSeconds()}${Math.floor(Math.random() * 10000)}`;
+                    
+                    // Format Tanggal: Senin, 17 Februari 2024 14:30:45
+                    const dateOptions = { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        second: '2-digit',
+                        hour12: false 
+                    };
+                    const transactionDate = now.toLocaleString('id-ID', dateOptions).replace(/\./g, ':');
+
+                    // 3. Buat List Item
+                    let itemsList = this.cart.map((item, i) => {
+                        return `${i+1}. ${item.name} x${item.quantity} (${this.formatRupiah(item.price * item.quantity)})`;
+                    }).join('%0a');
+
+                    // 4. Data Keuangan
+                    let subtotalTxt = this.formatRupiah(this.subtotal);
+                    let discountTxt = this.discountPercent > 0 ? `- ${this.formatRupiah(this.discountAmount)} (${this.activeCouponName})` : '-';
+                    let totalTxt = this.formatRupiah(this.total);
+
+                    // 5. Template Pesan WhatsApp (Format Baru)
+                    let message = `*INVOICE PESANAN BARU* %0a` +
+                                  `--------------------------------%0a` +
+                                  `🆔 *ID Transaksi:* ${uniqueId}%0a` +
+                                  `📅 *Waktu:* ${transactionDate}%0a` +
+                                  `--------------------------------%0a%0a` +
+                                  `*DATA PEMBELI*:%0a` +
+                                  `👤 Nama: ${this.customerName}%0a` +
+                                  `📱 No WA: ${this.customerPhone}%0a` +
+                                  `💳 Metode Bayar: ${this.selectedPayment}%0a%0a` +
+                                  `*RINCIAN PESANAN*:%0a` +
+                                  `${itemsList}%0a%0a` +
+                                  `--------------------------------%0a` +
+                                  `Subtotal: ${subtotalTxt}%0a` +
+                                  `Diskon: ${discountTxt}%0a` +
+                                  `*TOTAL BAYAR: ${totalTxt}*%0a` +
+                                  `--------------------------------%0a` +
+                                  `Mohon diproses secepatnya, Terima kasih!`;
+
+                    // 6. Redirect ke WA
+                    let waNumber = '6288985454681';
+                    let url = `https://wa.me/${waNumber}?text=${message}`;
+                    
+                    window.open(url, '_blank');
+                    
+                    // Opsional: Reset form setelah kirim
+                    // this.cart = [];
+                    // this.cartOpen = false;
+                },
+                formatRupiah(number) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                }
+            
+            }
+        }
+    </script>
+</body>
+</html>
