@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -80,6 +81,16 @@
                     <i class="fa-solid fa-shopping-bag text-xl"></i>
                     <span x-show="cartTotalItems > 0" x-transition class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="cartTotalItems"></span>
                 </button>
+                <template x-if="isLoggedIn">
+    <button @click="isProfileModalOpen = true; fetchUserProfile()" class="flex items-center gap-2 border border-langao-gold/30 px-3 py-1.5 rounded-full hover:bg-langao-gold/10 transition">
+        <i class="fa-regular fa-user text-langao-gold"></i>
+        <span class="text-xs font-bold text-gray-200" x-text="userProfile.namaLengkap.split(' ')[0]"></span>
+    </button>
+</template>
+
+<template x-if="!isLoggedIn">
+    <button @click="authModalOpen = true" class="text-xs uppercase bg-langao-gold text-langao-dark font-extrabold px-4 py-2 rounded-sm tracking-wider">Login</button>
+</template>
             </div>
             
             <button class="md:hidden text-langao-gold text-2xl" @click="mobileMenuOpen = !mobileMenuOpen">
@@ -93,6 +104,19 @@
             <button @click="cartOpen = true; mobileMenuOpen = false" class="block py-2 w-full text-left text-langao-gold font-bold">
                 Lihat Keranjang (<span x-text="cartTotalItems"></span>)
             </button>
+            
+            <div class="mt-4 pt-4 border-t border-white/10">
+                <template x-if="isLoggedIn">
+                    <button @click="isProfileModalOpen = true; fetchUserProfile(); mobileMenuOpen = false" class="flex items-center gap-2 text-white">
+                        <i class="fa-regular fa-user text-langao-gold"></i>
+                        <span class="text-sm font-bold" x-text="'Profil ' + userProfile.namaLengkap.split(' ')[0]"></span>
+                    </button>
+                </template>
+
+                <template x-if="!isLoggedIn">
+                    <button @click="authModalOpen = true; mobileMenuOpen = false" class="text-sm uppercase bg-langao-gold text-langao-dark font-extrabold px-4 py-2 rounded-sm tracking-wider w-full">Login / Daftar</button>
+                </template>
+            </div>
         </div>
     </nav>
 
@@ -856,7 +880,7 @@
                         <div class="flex h-full flex-col overflow-y-scroll bg-[#0f0504] border-l border-white/10 shadow-2xl">
                             
                             <div class="flex items-start justify-between px-4 py-6 sm:px-6 border-b border-white/10 bg-[#160a08]">
-                                <h2 class="text-xl font-serif font-bold text-white" id="slide-over-title">Keranjang Belanja</h2>
+                                <h2 class="text-xl font-serif font-bold text-white" id="slide-over-title" x-text="activeOrder ? 'Status Pesanan' : 'Keranjang Belanja'"></h2>
                                 <div class="ml-3 flex h-7 items-center">
                                     <button type="button" class="relative -m-2 p-2 text-gray-400 hover:text-white transition" @click="cartOpen = false">
                                         <i class="fa-solid fa-xmark text-2xl"></i>
@@ -864,120 +888,341 @@
                                 </div>
                             </div>
 
-                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-                                <div class="flow-root">
-                                    <ul role="list" class="-my-6 divide-y divide-white/5">
-                                        <li x-show="cart.length === 0" class="py-12 text-center flex flex-col items-center">
-                                            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                                <i class="fa-solid fa-basket-shopping text-gray-500 text-2xl"></i>
+                            <template x-if="!activeOrder">
+                                <div class="flex flex-col h-full">
+                                    <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+                                        <div class="flow-root">
+                                            <ul role="list" class="-my-6 divide-y divide-white/5">
+                                                <li x-show="cart.length === 0" class="py-12 text-center flex flex-col items-center">
+                                                    <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                                                        <i class="fa-solid fa-basket-shopping text-gray-500 text-2xl"></i>
+                                                    </div>
+                                                    <p class="text-gray-400">Keranjang Anda masih kosong.</p>
+                                                    <button @click="cartOpen = false" class="mt-4 text-langao-gold text-sm hover:underline">Mulai Belanja</button>
+                                                </li>
+
+                                                <template x-for="(item, index) in cart" :key="index">
+                                                    <li class="flex py-6">
+                                                        <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
+                                                            <img :src="item.image" :alt="item.name" class="h-full w-full object-cover object-center">
+                                                        </div>
+
+                                                        <div class="ml-4 flex flex-1 flex-col">
+                                                            <div>
+                                                                <div class="flex justify-between text-base font-medium text-white">
+                                                                    <h3 x-text="item.name" class="line-clamp-1"></h3>
+                                                                    <p class="ml-4 text-langao-gold whitespace-nowrap" x-text="formatRupiah(item.price * item.quantity)"></p>
+                                                                </div>
+                                                                <p class="mt-1 text-xs text-gray-500" x-text="item.category"></p>
+                                                            </div>
+                                                            <div class="flex flex-1 items-end justify-between text-sm mt-2">
+                                                                <div class="flex items-center border border-white/20 rounded bg-white/5">
+                                                                    <button @click="updateQuantity(item.id, -1)" class="px-2 py-0.5 hover:bg-white/10 text-white">-</button>
+                                                                    <span class="px-2 text-white text-xs" x-text="item.quantity"></span>
+                                                                    <button @click="updateQuantity(item.id, 1)" class="px-2 py-0.5 hover:bg-white/10 text-white">+</button>
+                                                                </div>
+
+                                                                <button type="button" @click="removeFromCart(item.id)" class="text-xs font-medium text-red-400 hover:text-red-300 transition">Hapus</button>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t border-white/10 px-4 py-6 sm:px-6 bg-[#160a08]" x-show="cart.length > 0">
+                                        
+                                        <div class="space-y-4 mb-6">
+                                            <h3 class="text-white text-sm font-bold uppercase tracking-wider mb-3 border-b border-white/10 pb-2">Informasi Pembeli</h3>
+                                            
+                                            <div>
+                                                <label class="block text-xs text-gray-400 mb-1">Nama Penerima</label>
+                                                <input type="text" x-model="customerName" placeholder="Contoh: Budi Santoso" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
                                             </div>
-                                            <p class="text-gray-400">Keranjang Anda masih kosong.</p>
-                                            <button @click="cartOpen = false" class="mt-4 text-langao-gold text-sm hover:underline">Mulai Belanja</button>
-                                        </li>
+                                            
+                                            <div>
+                                                <label class="block text-xs text-gray-400 mb-1">WhatsApp (Aktif)</label>
+                                                <input type="tel" x-model="customerPhone" placeholder="Contoh: 0812xxxx" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
+                                            </div>
 
-                                        <template x-for="(item, index) in cart" :key="index">
-                                            <li class="flex py-6">
-                                                <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
-                                                    <img :src="item.image" :alt="item.name" class="h-full w-full object-cover object-center">
-                                                </div>
-
-                                                <div class="ml-4 flex flex-1 flex-col">
-                                                    <div>
-                                                        <div class="flex justify-between text-base font-medium text-white">
-                                                            <h3 x-text="item.name" class="line-clamp-1"></h3>
-                                                            <p class="ml-4 text-langao-gold whitespace-nowrap" x-text="formatRupiah(item.price * item.quantity)"></p>
-                                                        </div>
-                                                        <p class="mt-1 text-xs text-gray-500" x-text="item.category"></p>
-                                                    </div>
-                                                    <div class="flex flex-1 items-end justify-between text-sm mt-2">
-                                                        <div class="flex items-center border border-white/20 rounded bg-white/5">
-                                                            <button @click="updateQuantity(item.id, -1)" class="px-2 py-0.5 hover:bg-white/10 text-white">-</button>
-                                                            <span class="px-2 text-white text-xs" x-text="item.quantity"></span>
-                                                            <button @click="updateQuantity(item.id, 1)" class="px-2 py-0.5 hover:bg-white/10 text-white">+</button>
-                                                        </div>
-
-                                                        <button type="button" @click="removeFromCart(item.id)" class="text-xs font-medium text-red-400 hover:text-red-300 transition">Hapus</button>
+                                            <div>
+                                                <label class="block text-xs text-gray-400 mb-1">Metode Pembayaran</label>
+                                                <div class="relative">
+                                                    <select x-model="selectedPayment" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition appearance-none cursor-pointer">
+                                                        <option value="" disabled selected>Pilih Pembayaran</option>
+                                                        <template x-for="method in paymentMethods" :key="method">
+                                                            <option :value="method" x-text="method" class="bg-[#1a0b08] text-gray-300"></option>
+                                                        </template>
+                                                    </select>
+                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                                                        <i class="fa-solid fa-chevron-down text-xs"></i>
                                                     </div>
                                                 </div>
-                                            </li>
-                                        </template>
-                                    </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
+                                            <label class="block text-xs text-langao-gold font-bold mb-2 uppercase tracking-wide">Punya Kode Promo?</label>
+                                            <div class="flex gap-2">
+                                                <input type="text" x-model="couponCode" placeholder="Masukkan kode" class="w-full bg-black/40 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold uppercase placeholder-gray-600">
+                                                <button @click="applyCoupon" class="bg-white/10 border border-white/10 text-white px-4 py-2 rounded hover:bg-langao-gold hover:text-black hover:border-langao-gold transition text-sm font-bold">
+                                                    Cek
+                                                </button>
+                                            </div>
+                                            
+                                            <div x-show="couponMessage" x-transition class="mt-2 text-xs flex items-center gap-2" :class="couponSuccess ? 'text-green-400' : 'text-red-400'">
+                                                <i class="fa-solid" :class="couponSuccess ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
+                                                <span x-text="couponMessage"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 mb-6 text-sm">
+                                            <div class="flex justify-between text-gray-400">
+                                                <p>Subtotal</p>
+                                                <p x-text="formatRupiah(subtotal)"></p>
+                                            </div>
+                                            
+                                            <div x-show="discountPercent > 0" class="flex justify-between text-green-400 animate-pulse">
+                                                <p>Diskon Promo <span x-show="activeCouponName" x-text="'(' + activeCouponName + ')'" class="text-[10px] uppercase border border-green-500/30 px-1 rounded ml-1"></span></p>
+                                                <p x-text="'- ' + formatRupiah(discountAmount)"></p>
+                                            </div>
+
+                                            <div class="flex justify-between text-xl font-bold text-white border-t border-white/10 pt-4 mt-4">
+                                                <p>Total Bayar</p>
+                                                <p class="text-langao-gold" x-text="formatRupiah(total)"></p>
+                                            </div>
+                                        </div>
+
+                                        <button @click="checkoutWhatsApp" 
+                                                :disabled="cart.length === 0"
+                                                class="w-full bg-gradient-to-r from-langao-gold to-yellow-600 text-black font-bold py-4 rounded-xl hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-[1.02] transition duration-300 uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <span>Checkout via WhatsApp</span>
+                                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                                        </button>
+                                        
+                                        <p class="text-[10px] text-gray-500 text-center mt-3">
+                                            Pesanan akan diteruskan ke WhatsApp Admin Langao (+62 889-8545-4681)
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-if="activeOrder">
+                                <div class="p-6 space-y-6 flex-1 bg-[#160a08]">
+                                    
+                                    <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                                        <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-3">
+                                            <div>
+                                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">ID Transaksi</p>
+                                                <p class="text-sm font-black text-langao-gold" x-text="activeOrder.idTransaksi"></p>
+                                            </div>
+                                            <span :class="getBadgeColor(activeOrder.statusPesanan)" class="text-[10px] uppercase font-extrabold px-3 py-1.5 rounded-full tracking-widest shadow-lg" x-text="activeOrder.statusPesanan"></span>
+                                        </div>
+                                        
+                                        <div class="space-y-1">
+                                            <p class="text-[10px] text-gray-400 uppercase tracking-widest">Waktu Pemesanan</p>
+                                            <p class="text-xs text-white" x-text="activeOrder.waktu"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="text-xs text-langao-gold font-bold uppercase tracking-widest border-b border-white/10 pb-2 mb-3">Rincian Menu:</h4>
+                                        <ul class="space-y-3 mb-4">
+                                            <template x-for="item in activeOrder.items">
+                                                <li class="flex justify-between items-center text-sm">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-langao-gold font-bold text-xs" x-text="item.quantity + 'x'"></span>
+                                                        <span class="text-gray-300 truncate w-40" x-text="item.name"></span>
+                                                    </div>
+                                                    <span class="text-white font-bold" x-text="formatRupiah(item.price * item.quantity)"></span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                        <div class="flex justify-between items-center border-t border-white/10 pt-3">
+                                            <span class="text-sm text-gray-400">Total Dibayar:</span>
+                                            <span class="text-lg font-black text-langao-gold" x-text="formatRupiah(activeOrder.totalHarga)"></span>
+                                        </div>
+                                    </div>
+
+                                    <template x-if="activeOrder.statusPesanan === 'Sudah Selesai'">
+                                        <div class="pt-6 border-t border-white/10 text-center space-y-3">
+                                            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-2 animate-bounce">
+                                                <i class="fa-solid fa-mug-hot"></i>
+                                            </div>
+                                            <h3 class="text-lg font-serif font-bold text-white">Pesanan Selesai!</h3>
+                                            <p class="text-xs text-gray-400 leading-relaxed max-w-[250px] mx-auto">Terima kasih telah memesan di Langao. Makanan Anda sudah disajikan. Selamat menikmati!</p>
+                                            
+                                            <button @click="lanjutPesanLagi()" class="w-full py-3.5 bg-langao-gold text-black font-extrabold rounded-xl text-xs uppercase tracking-widest hover:bg-white hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition mt-4">
+                                                <i class="fa-solid fa-rotate-left mr-1"></i> Pesan Lagi
+                                            </button>
+                                        </div>
+                                    </template>
+                                    
+                                </div>
+                            </template>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div x-show="authModalOpen" class="relative z-[110]" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+        <div x-show="authModalOpen" x-transition.opacity class="fixed inset-0 bg-black/90 backdrop-blur-sm"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div x-show="authModalOpen" 
+                     x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     class="relative transform overflow-hidden rounded-2xl bg-[#0f0504] border border-langao-gold/30 text-left shadow-[0_0_40px_rgba(212,175,55,0.15)] transition-all sm:my-8 sm:w-full sm:max-w-md">
+                    
+                    <button @click="authModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-langao-gold transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+
+                   <div class="px-6 py-8 sm:px-10 sm:py-10">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-serif font-bold text-langao-gold mb-2" x-text="authMode === 'login' ? 'Selamat Datang' : (authMode === 'register' ? 'Gabung Member' : 'Lupa Password')"></h2>
+                            <p class="text-gray-400 text-sm" x-text="authMode === 'login' ? 'Masuk untuk mengelola pesanan Anda.' : (authMode === 'register' ? 'Nikmati keuntungan eksklusif Langao.' : 'Masukkan email Anda untuk mencari password.')"></p>
+                        </div>
+
+                        <div class="space-y-5">
+                            <template x-if="authMode === 'register'">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 uppercase tracking-widest font-bold">Nama Lengkap</label>
+                                    <input type="text" x-model="authForm.namaLengkap" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-langao-gold focus:outline-none transition">
+                                </div>
+                            </template>
+                            
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1 uppercase tracking-widest font-bold">Email</label>
+                                <input type="email" x-model="authForm.email" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-langao-gold focus:outline-none transition">
+                            </div>
+
+                            <template x-if="authMode !== 'forgot'">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 uppercase tracking-widest font-bold">Password</label>
+                                    <input type="password" x-model="authForm.password" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:border-langao-gold focus:outline-none transition">
+                                </div>
+                            </template>
+
+                            <template x-if="authMode === 'login'">
+                                <div class="text-right">
+                                    <a href="#" @click.prevent="authMode = 'forgot'" class="text-xs text-langao-gold hover:underline">Lupa Password?</a>
+                                </div>
+                            </template>
+
+                            <button @click="handleAuth()" class="w-full bg-langao-gold text-black font-extrabold py-3.5 rounded-lg hover:bg-white transition duration-300 uppercase tracking-widest mt-4">
+                                <span x-text="authMode === 'login' ? 'Masuk Sekarang' : (authMode === 'register' ? 'Daftar Sekarang' : 'Cari Password')"></span>
+                            </button>
+                        </div>
+
+                        <div class="mt-8 text-center text-sm text-gray-400">
+                            <template x-if="authMode === 'forgot'">
+                                <button @click.prevent="authMode = 'login'" class="text-langao-gold font-bold hover:underline">Kembali ke Halaman Login</button>
+                            </template>
+                            
+                            <template x-if="authMode !== 'forgot'">
+                                <div>
+                                    <span x-text="authMode === 'login' ? 'Belum punya akun?' : 'Sudah punya akun?'"></span>
+                                    <button @click.prevent="authMode = authMode === 'login' ? 'register' : 'login'" class="text-langao-gold font-bold hover:underline ml-1">
+                                        <span x-text="authMode === 'login' ? 'Daftar di sini' : 'Masuk di sini'"></span>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div x-show="isProfileModalOpen" class="relative z-[105]" role="dialog" aria-modal="true" style="display: none;">
+        <div x-show="isProfileModalOpen" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="isProfileModalOpen = false"></div>
+
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 left-0 flex max-w-full pr-10">
+                    <div x-show="isProfileModalOpen" 
+                         x-transition:enter="transform transition ease-in-out duration-500" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" 
+                         x-transition:leave="transform transition ease-in-out duration-500" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" 
+                         class="pointer-events-auto w-screen max-w-md">
+                        
+                        <div class="flex h-full flex-col overflow-y-scroll bg-[#0f0504] border-r border-langao-gold/20 shadow-2xl">
+                            
+                          <div class="bg-gradient-to-br from-langao-dark to-slate-900 px-6 py-8 border-b border-white/10 relative">
+                                <button @click="isProfileModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-langao-gold transition">
+                                    <i class="fa-solid fa-xmark text-2xl"></i>
+                                </button>
+                                
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-full bg-langao-gold flex items-center justify-center text-2xl font-black text-black">
+                                        <span x-text="(userProfile?.namaLengkap || user?.email || 'U').charAt(0).toUpperCase()"></span>
+                                    </div>
+                                    
+                                    <div>
+                                        <h2 class="text-xl font-serif font-bold text-white" x-text="userProfile?.namaLengkap || 'Member Langao'"></h2>
+                                        <p class="text-xs text-langao-gold" x-text="userProfile?.email || user?.email || 'Memuat data...'"></p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="border-t border-white/10 px-4 py-6 sm:px-6 bg-[#160a08]" x-show="cart.length > 0">
-                                
-                                <div class="space-y-4 mb-6">
-                                    <h3 class="text-white text-sm font-bold uppercase tracking-wider mb-3 border-b border-white/10 pb-2">Informasi Pembeli</h3>
-                                    
-                                    <div>
-                                        <label class="block text-xs text-gray-400 mb-1">Nama Penerima</label>
-                                        <input type="text" x-model="customerName" placeholder="Contoh: Budi Santoso" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-xs text-gray-400 mb-1">WhatsApp (Aktif)</label>
-                                        <input type="tel" x-model="customerPhone" placeholder="Contoh: 0812xxxx" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition placeholder-gray-600">
+                            <div class="p-6 space-y-8">
+                                <div>
+                                    <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                                        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Data Pengiriman</h3>
+                                        <button @click="isEditingProfile = !isEditingProfile" class="text-xs text-langao-gold hover:text-white transition">
+                                            <i class="fa-solid" :class="isEditingProfile ? 'fa-xmark' : 'fa-pen-to-square'"></i> 
+                                            <span x-text="isEditingProfile ? 'Batal' : 'Edit'"></span>
+                                        </button>
                                     </div>
 
-                                    <div>
-                                        <label class="block text-xs text-gray-400 mb-1">Metode Pembayaran</label>
-                                        <div class="relative">
-                                            <select x-model="selectedPayment" class="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold transition appearance-none cursor-pointer">
-                                                <option value="" disabled selected>Pilih Pembayaran</option>
-                                                <template x-for="method in paymentMethods" :key="method">
-                                                    <option :value="method" x-text="method" class="bg-[#1a0b08] text-gray-300"></option>
-                                                </template>
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
-                                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">Nomor WhatsApp</label>
+                                            <input type="text" x-model="userProfile.noWa" :disabled="!isEditingProfile" :class="!isEditingProfile ? 'bg-transparent border-transparent px-0 text-white' : 'bg-white/5 border-white/20 px-3'" class="w-full border rounded-lg py-2 text-sm focus:outline-none focus:border-langao-gold transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">Alamat Lengkap</label>
+                                            <textarea x-model="userProfile.alamat" :disabled="!isEditingProfile" rows="2" :class="!isEditingProfile ? 'bg-transparent border-transparent px-0 text-white' : 'bg-white/5 border-white/20 px-3'" class="w-full border rounded-lg py-2 text-sm focus:outline-none focus:border-langao-gold transition resize-none"></textarea>
+                                        </div>
+                                        
+                                        <button x-show="isEditingProfile" @click="saveProfile()" class="w-full bg-langao-gold text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-widest hover:bg-white transition mt-2">
+                                            Simpan Perubahan
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4 border-b border-white/10 pb-2">Riwayat Pesanan</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <template x-for="order in orderHistory" :key="order.idTransaksi">
+                                            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                                                    <span class="text-[10px] text-gray-400" x-text="order.transactionDate"></span>
+                                                    <span :class="getBadgeColor(order.statusPesanan)" class="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-wider" x-text="order.statusPesanan"></span>
+                                                </div>
+                                                <h4 class="text-sm font-bold text-white mb-1 truncate" x-text="order.itemsList"></h4>
+                                                <div class="flex justify-between items-end mt-3">
+                                                    <span class="text-[10px] text-gray-500" x-text="order.selectedPayment"></span>
+                                                    <span class="text-sm font-black text-langao-gold" x-text="formatRupiah(order.total)"></span>
+                                                </div>
                                             </div>
+                                        </template>
+
+                                        <div x-show="orderHistory.length === 0" class="text-center py-6">
+                                            <i class="fa-solid fa-receipt text-gray-600 text-3xl mb-2"></i>
+                                            <p class="text-xs text-gray-400">Belum ada riwayat pesanan.</p>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <label class="block text-xs text-langao-gold font-bold mb-2 uppercase tracking-wide">Punya Kode Promo?</label>
-                                    <div class="flex gap-2">
-                                        <input type="text" x-model="couponCode" placeholder="Masukkan kode" class="w-full bg-black/40 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-langao-gold uppercase placeholder-gray-600">
-                                        <button @click="applyCoupon" class="bg-white/10 border border-white/10 text-white px-4 py-2 rounded hover:bg-langao-gold hover:text-black hover:border-langao-gold transition text-sm font-bold">
-                                            Cek
-                                        </button>
-                                    </div>
-                                    
-                                    <div x-show="couponMessage" x-transition class="mt-2 text-xs flex items-center gap-2" :class="couponSuccess ? 'text-green-400' : 'text-red-400'">
-                                        <i class="fa-solid" :class="couponSuccess ? 'fa-circle-check' : 'fa-circle-exclamation'"></i>
-                                        <span x-text="couponMessage"></span>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2 mb-6 text-sm">
-                                    <div class="flex justify-between text-gray-400">
-                                        <p>Subtotal</p>
-                                        <p x-text="formatRupiah(subtotal)"></p>
-                                    </div>
-                                    
-                               <div x-show="discountPercent > 0" class="flex justify-between text-green-400 animate-pulse">
-                                    <p>Diskon Promo <span x-show="activeCouponName" x-text="'(' + activeCouponName + ')'" class="text-[10px] uppercase border border-green-500/30 px-1 rounded ml-1"></span></p>
-                                        <p x-text="'- ' + formatRupiah(discountAmount)"></p>
-                                    </div>
-
-                                    <div class="flex justify-between text-xl font-bold text-white border-t border-white/10 pt-4 mt-4">
-                                        <p>Total Bayar</p>
-                                        <p class="text-langao-gold" x-text="formatRupiah(total)"></p>
-                                    </div>
-                                </div>
-
-                                <button @click="checkoutWhatsApp" 
-                                        :disabled="cart.length === 0"
-                                        class="w-full bg-gradient-to-r from-langao-gold to-yellow-600 text-black font-bold py-4 rounded-xl hover:shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-[1.02] transition duration-300 uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <span>Checkout via WhatsApp</span>
-                                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                                
+                                <button @click="localStorage.removeItem('langao_user'); location.reload();" class="w-full border border-rose-500/30 text-rose-400 font-bold py-3 rounded-xl text-xs uppercase tracking-widest hover:bg-rose-500 hover:text-white transition mt-8">
+                                    Keluar (Logout)
                                 </button>
                                 
-                                <p class="text-[10px] text-gray-500 text-center mt-3">
-                                    Pesanan akan diteruskan ke WhatsApp Admin Langao (+62 889-8545-4681)
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -988,6 +1233,7 @@
 
     <script>
         // Fungsi Timer Alpine.js
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW9LZhQGaECA2nyp1UCEOdyzYgFAeDPris2_t9j8pCiZ_8lQQMIg9FwMrRFEsoNm6V/exec";
         function timer() {
             return {
                 time: {
@@ -1016,6 +1262,20 @@
         }
         function langaoApp() {
             return {
+                // --- AUTH & USER STATE (TAMBAHAN BARU) ---
+                isLoggedIn: false,
+                authModalOpen: false,
+                authMode: 'login', // login | register
+                authForm: { email: '', password: '', namaLengkap: '' },
+                user: { idUser: '', email: '' },
+                userProfile: { namaLengkap: '', email: '', alamat: '', noWa: '', avatar: '', tema: 'Dark Mode' },
+                isProfileModalOpen: false,
+                isEditingProfile: false,
+                
+                // --- ORDER STATE CONTROL (TAMBAHAN BARU) ---
+                activeOrder: null,
+                orderHistory: [],
+                statusPollInterval: null,
                 mobileMenuOpen: false,
                 cartOpen: false,
                 isScrolled: false,
@@ -1028,8 +1288,23 @@
                 // Banner Auto Scroll Logic
                 scrollInterval: null,
                 
-                init() {
+           init() {
                     this.startAutoScroll();
+                    
+                    // Cek session login di awal muat halaman
+                    const savedUser = localStorage.getItem('langao_user');
+                    if (savedUser) {
+                        this.user = JSON.parse(savedUser);
+                        this.isLoggedIn = true;
+                        this.fetchUserProfile();
+                    }
+                    
+                    // Cek apakah ada pesanan yang sedang dilacak
+                    const savedOrder = localStorage.getItem(`active_order_${this.user.idUser}`);
+                    if (savedOrder) {
+                        this.activeOrder = JSON.parse(savedOrder);
+                        this.startStatusPolling();
+                    }
                 },
 
                 startAutoScroll() {
@@ -1478,42 +1753,169 @@ applyCoupon() {
                     }
                 },             
                // --- CHECKOUT VIA WHATSAPP (REVISI ID & TANGGAL) ---
-                checkoutWhatsApp() {
-                    // 1. Validasi Input
+              // --- FITUR LOGIN & REGISTRASI (FULL DATABASE VALIDATION) ---
+               // --- FITUR LOGIN, REGISTRASI & LUPA PASSWORD ---
+                async handleAuth() {
+                    if(!this.authForm.email) {
+                        alert("Harap masukkan email Anda!");
+                        return;
+                    }
+
+                    const payload = new URLSearchParams();
+                    payload.append('action', this.authMode);
+                    payload.append('email', this.authForm.email);
+                    
+                    if (this.authMode !== 'forgot') payload.append('password', this.authForm.password);
+                    if (this.authMode === 'register') payload.append('namaLengkap', this.authForm.namaLengkap);
+
+                    try {
+                        const url = `${SCRIPT_URL}?${payload.toString()}`;
+                        const res = await fetch(url);
+                        const json = await res.json(); 
+
+                        if (json.status === 'success') {
+                            
+                            if (this.authMode === 'forgot') {
+                                // Tampilkan password dari database
+                                alert(`Password Anda ditemukan!\n\n🔑 Password: ${json.password}\n\nSilakan login kembali.`);
+                                this.authMode = 'login';
+                            } 
+                            else if (this.authMode === 'register') {
+                                alert('Registrasi berhasil! Silakan masuk dengan akun Anda.');
+                                this.authMode = 'login';
+                            } 
+                            else {
+                                this.isLoggedIn = true;
+                                this.authModalOpen = false;
+                                this.user = { idUser: json.idUser, email: json.email };
+                                localStorage.setItem('langao_user', JSON.stringify(this.user)); 
+                                this.fetchUserProfile();
+                            }
+                            
+                        } else {
+                            alert('Gagal: ' + json.message);
+                        }
+
+                    } catch(e) { 
+                        console.error(e);
+                        alert('Koneksi terputus. Gagal memproses data.'); 
+                    }
+                },
+                // --- PROFILER SYSTEM ---
+                async fetchUserProfile() {
+                    try {
+                        const res = await fetch(`${SCRIPT_URL}?action=get_user_profile&idUser=${this.user.idUser}`);
+                        const json = await res.json();
+                        if (json.status === 'success') {
+                            this.userProfile = json.profile;
+                            this.customerName = this.userProfile.namaLengkap;
+                            this.customerPhone = this.userProfile.noWa;
+                            this.fetchOrderHistory(); // Tarik riwayat sekalian
+                        }
+                    } catch(e) { console.log("Gagal memuat profil."); }
+                },
+
+                async fetchOrderHistory() {
+                    try {
+                        const res = await fetch(`${SCRIPT_URL}?action=get_orders&idUser=${this.user.idUser}`);
+                        const json = await res.json();
+                        if (json.status === 'success') {
+                            this.orderHistory = json.orders;
+                        }
+                    } catch(e) { console.log("Gagal memuat riwayat."); }
+                },
+
+                async saveProfile() {
+                    const payload = new URLSearchParams({
+                        action: 'update_user_profile',
+                        idUser: this.user.idUser,
+                        namaLengkap: this.userProfile.namaLengkap,
+                        alamat: this.userProfile.alamat,
+                        noWa: this.userProfile.noWa
+                    });
+                    try {
+                        await fetch(SCRIPT_URL, { method: 'POST', body: payload, mode: 'no-cors' });
+                        this.isEditingProfile = false;
+                        alert('Profil berhasil diperbarui!');
+                        this.fetchUserProfile();
+                    } catch(e) { alert('Gagal menyimpan.'); }
+                },
+              startStatusPolling() {
+                    if(this.statusPollInterval) clearInterval(this.statusPollInterval);
+                    
+                    this.statusPollInterval = setInterval(async () => {
+                        if (!this.activeOrder) return;
+                        try {
+                            const res = await fetch(`${SCRIPT_URL}?action=get_orders&idUser=${this.user.idUser}`);
+                            const json = await res.json();
+                            if(json.status === 'success') {
+                                const serverOrder = json.orders.find(o => o.idTransaksi === this.activeOrder.idTransaksi);
+                                
+                                if(serverOrder && serverOrder.statusPesanan !== this.activeOrder.statusPesanan) {
+                                    this.activeOrder.statusPesanan = serverOrder.statusPesanan;
+                                    localStorage.setItem(`active_order_${this.user.idUser}`, JSON.stringify(this.activeOrder));
+                                    
+                                    alert(`🔔 Notifikasi Langao: Status Pesanan Anda berubah menjadi [${serverOrder.statusPesanan}]!`);
+                                    
+                                    if(serverOrder.statusPesanan === 'Sudah Selesai') clearInterval(this.statusPollInterval);
+                                }
+                            }
+                        } catch(e) { console.log("Menunggu sinkronisasi..."); }
+                    }, 5000); // Mengecek database setiap 5 detik
+                },
+
+                lanjutPesanLagi() {
+                    this.activeOrder = null;
+                    localStorage.removeItem(`active_order_${this.user.idUser}`);
+                    this.cartOpen = false;
+                },
+
+                getBadgeColor(status) {
+                    if(status === 'Belum Diproses') return 'bg-rose-600 text-white';
+                    if(status === 'Sedang Di Proses') return 'bg-amber-500 text-black';
+                    return 'bg-emerald-600 text-white';
+                },
+                // --- FUNGSI CHECKOUT (WHATSAPP + DATABASE + TRACKING) ---
+                async checkoutWhatsApp() {
+                    // 1. Cek Login Terlebih Dahulu
+                    if (!this.isLoggedIn) {
+                        alert('Anda harus login terlebih dahulu untuk memesan!');
+                        this.authModalOpen = true;
+                        this.cartOpen = false;
+                        return;
+                    }
+
+                    // 2. Validasi Input Form
                     if (!this.customerName || !this.customerPhone || !this.selectedPayment) {
                         alert('Mohon lengkapi Nama, No. WhatsApp, dan Metode Pembayaran.');
                         return;
                     }
 
-                    // 2. Generate Data Unik
+                    // 3. Generate Data Unik & Waktu Transaksi
                     const now = new Date();
-                    // ID Unik: Format LGO-[Detik][Acak] -> Contoh: LGO-458921
                     const uniqueId = `LGO-${now.getSeconds()}${Math.floor(Math.random() * 10000)}`;
                     
-                    // Format Tanggal: Senin, 17 Februari 2024 14:30:45
                     const dateOptions = { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric', 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit',
-                        hour12: false 
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+                        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
                     };
                     const transactionDate = now.toLocaleString('id-ID', dateOptions).replace(/\./g, ':');
 
-                    // 3. Buat List Item
-                    let itemsList = this.cart.map((item, i) => {
+                    // 4. Siapkan List Menu
+                    // Untuk WhatsApp (Format rapi menurun ke bawah)
+                    let waItemsList = this.cart.map((item, i) => {
                         return `${i+1}. ${item.name} x${item.quantity} (${this.formatRupiah(item.price * item.quantity)})`;
                     }).join('%0a');
+                    
+                    // Untuk Database (Format sebaris agar rapi di Spreadsheet)
+                    let dbItemsList = this.cart.map(item => `${item.name} (${item.quantity}x)`).join(', ');
 
-                    // 4. Data Keuangan
+                    // 5. Data Keuangan
                     let subtotalTxt = this.formatRupiah(this.subtotal);
                     let discountTxt = this.discountPercent > 0 ? `- ${this.formatRupiah(this.discountAmount)} (${this.activeCouponName})` : '-';
                     let totalTxt = this.formatRupiah(this.total);
 
-                    // 5. Template Pesan WhatsApp (Format Baru)
+                    // 6. Template Pesan WhatsApp (Format Lengkap Milikmu)
                     let message = `*INVOICE PESANAN BARU* %0a` +
                                   `--------------------------------%0a` +
                                   `🆔 *ID Transaksi:* ${uniqueId}%0a` +
@@ -1524,7 +1926,7 @@ applyCoupon() {
                                   `📱 No WA: ${this.customerPhone}%0a` +
                                   `💳 Metode Bayar: ${this.selectedPayment}%0a%0a` +
                                   `*RINCIAN PESANAN*:%0a` +
-                                  `${itemsList}%0a%0a` +
+                                  `${waItemsList}%0a%0a` +
                                   `--------------------------------%0a` +
                                   `Subtotal: ${subtotalTxt}%0a` +
                                   `Diskon: ${discountTxt}%0a` +
@@ -1532,15 +1934,50 @@ applyCoupon() {
                                   `--------------------------------%0a` +
                                   `Mohon diproses secepatnya, Terima kasih!`;
 
-                    // 6. Redirect ke WA
-                    let waNumber = '6288985454681';
-                    let url = `https://wa.me/${waNumber}?text=${message}`;
-                    
-                    window.open(url, '_blank');
-                    
-                    // Opsional: Reset form setelah kirim
-                    // this.cart = [];
-                    // this.cartOpen = false;
+                    // 7. Siapkan Paket Data untuk Database (Google Sheets)
+                    const payload = new URLSearchParams({
+                        action: 'checkout_order',
+                        idTransaksi: uniqueId,
+                        idUser: this.user.idUser,
+                        customerName: this.customerName,
+                        customerPhone: this.customerPhone,
+                        selectedPayment: this.selectedPayment,
+                        itemsList: dbItemsList,
+                        subtotal: this.subtotal,
+                        total: this.total,
+                        transactionDate: transactionDate
+                    });
+
+                    // 8. PROSES EKSEKUSI (DATABASE -> TRACKING -> WA)
+                    try {
+                        // A. Simpan ke Database
+                        await fetch(SCRIPT_URL, { method: 'POST', body: payload, mode: 'no-cors' });
+                        
+                        // B. Ubah Mode Keranjang Menjadi Mode "Tracking Pesanan"
+                        const orderData = {
+                            idTransaksi: uniqueId,
+                            items: [...this.cart],
+                            totalHarga: this.total,
+                            statusPesanan: 'Belum Diproses',
+                            waktu: transactionDate
+                        };
+                        this.activeOrder = orderData;
+                        localStorage.setItem(`active_order_${this.user.idUser}`, JSON.stringify(orderData));
+                        
+                        // C. Kosongkan isi keranjang saat ini
+                        this.cart = []; 
+                        
+                        // D. Mulai memantau perubahan status pesanan dari Admin
+                        this.startStatusPolling();
+
+                        // E. Buka WhatsApp dengan pesan invoice yang lengkap!
+                        let waNumber = '6288985454681';
+                        let url = `https://wa.me/${waNumber}?text=${message}`;
+                        window.open(url, '_blank');
+
+                    } catch (e) { 
+                        alert('Gagal memproses checkout. Silakan cek koneksi internet Anda.'); 
+                    }
                 },
                 formatRupiah(number) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
